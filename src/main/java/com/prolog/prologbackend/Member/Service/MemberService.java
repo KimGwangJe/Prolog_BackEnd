@@ -1,5 +1,7 @@
 package com.prolog.prologbackend.Member.Service;
 
+import com.prolog.prologbackend.Exception.BusinessLogicException;
+import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
 import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Domain.MemberStatus;
@@ -16,9 +18,9 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-     public boolean joinMember(MemberJoinDto joinDto){
-        if(memberRepository.findByEmail(joinDto.getEmail()).isPresent())
-            return false;
+     public void joinMember(MemberJoinDto joinDto){
+        memberRepository.findByEmail(joinDto.getEmail())
+                .ifPresent(m -> {throw new BusinessLogicException(MemberExceptionType.MEMBER_CONFLICT);});
         Member newMember = Member.builder()
                         .email(joinDto.getEmail())
                 .password(passwordEncoder.encode(joinDto.getPassword()))
@@ -31,7 +33,6 @@ public class MemberService {
                 .role("USER")
                 .build();
         memberRepository.save(newMember);
-        return true;
     }
 
 }

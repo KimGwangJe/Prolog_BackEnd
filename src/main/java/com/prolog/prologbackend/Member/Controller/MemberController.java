@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
@@ -21,8 +20,7 @@ public class MemberController {
 
     @PostMapping
     ResponseEntity joinMember(@Valid @RequestBody MemberJoinDto joinDto){
-        if(!memberService.joinMember(joinDto))
-            return ResponseEntity.status(BAD_REQUEST).build();
+        memberService.joinMember(joinDto);
         return ResponseEntity.status(CREATED).build();
     }
 }
