@@ -48,14 +48,20 @@ public class Project {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    @Builder // 수정에 사용
-    public Project(Long projectId, String projectName, Date startDate, Date endedDate, String description,String stack, Date modifiedDate) {
+    @Builder // 생성에 사용
+    public Project(
+            Long projectId, String projectName, Date startDate, Date endedDate,
+            String description, String stack, Date createdDate,
+            Date modifiedDate, boolean isDeleted)
+    {
         this.projectId = projectId;
         this.projectName = projectName;
         this.startDate = startDate;
         this.endedDate = endedDate;
         this.description = description;
         this.stack = stack;
+        this.createdDate = createdDate;
         this.modifiedDate = modifiedDate;
+        this.isDeleted = isDeleted;
     }
 }

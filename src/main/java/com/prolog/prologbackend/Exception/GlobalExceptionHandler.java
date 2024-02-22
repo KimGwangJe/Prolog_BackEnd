@@ -1,7 +1,9 @@
 package com.prolog.prologbackend.Exception;
 
+import com.prolog.prologbackend.Project.ExceptionType.ProjectExceptionType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,31 +12,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/**
- * Author : Kim
- * Description : UserEmail이 Email형식이 아닐 경우
- * {
- *     "email": "올바른 형식의 이메일 주소여야 합니다"
- * }
- * 형식으로 데이터가 전달됩니다.
-*/
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(final MethodArgumentNotValidException e) {
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getFieldErrors().forEach((error) -> {
-            String fieldName = error.getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errors);
-    }
 
     @ExceptionHandler(BusinessLogicException.class)
     public ResponseEntity handleBusinessLogicExceptions(BusinessLogicException e) {
         return ResponseEntity.status(e.getExceptionType().getErrorCode())
                 .body(ErrorResponse.of(e.getExceptionType()));
+    }
+
+    //Email 형식이 올바르지 않음
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity handleValidationEmailExceptions(MethodArgumentNotValidException e) {
+        return ResponseEntity.status(ProjectExceptionType.EMAIL_FORMAT_ERROR.getErrorCode())
+                .body(ErrorResponse.of(ProjectExceptionType.EMAIL_FORMAT_ERROR));
+    }
+
+    //데이터에 null값이 포함되어있다면
+    @ExceptionHandler(BusinessLogicException.class)
+    public ResponseEntity handleBusinessLogicException(BusinessLogicException e){
+        return ResponseEntity.status(e.getExceptionType().getErrorCode())
+                .body(ErrorResponse.of(e.getExceptionType()));
+    }
+
+    //Date Format이 제대로 오지 않았을
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return ResponseEntity.status(ProjectExceptionType.DATE_FORMAT_ERROR.getErrorCode())
+                .body(ErrorResponse.of(ProjectExceptionType.DATE_FORMAT_ERROR));
     }
 }

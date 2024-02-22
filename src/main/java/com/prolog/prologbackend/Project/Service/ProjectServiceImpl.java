@@ -1,5 +1,6 @@
 package com.prolog.prologbackend.Project.Service;
 
+import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Request.RequestStep;
 import com.prolog.prologbackend.Project.DTO.Response.ProjectListResponseDTO;
@@ -9,6 +10,7 @@ import com.prolog.prologbackend.Project.DTO.Response.ResponseStep;
 import com.prolog.prologbackend.Project.Domain.Project;
 import com.prolog.prologbackend.Project.Domain.ProjectStack;
 import com.prolog.prologbackend.Project.Domain.ProjectStep;
+import com.prolog.prologbackend.Project.ExceptionType.ProjectExceptionType;
 import com.prolog.prologbackend.Project.Repository.ProjectRepository;
 import com.prolog.prologbackend.Project.Repository.ProjectStackRepository;
 import com.prolog.prologbackend.Project.Repository.ProjectStepRepository;
@@ -32,23 +34,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ProjectInfoServiceImpl implements ProjectInfoService{
+public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectStepRepository projectStepRepository;
     private final ProjectStackRepository projectStackRepository;
 
-    // 기능 추가 필요
     @Override
     @Transactional(readOnly = true)
     public ResponseProjectDetailDTO getProjectInfo(Long projectId) {
         /**
          * 팀 멤버 조회 하는것도 추가 필요
          */
-        Project project = projectRepository.findById(projectId).orElse(null);
-        if (project == null) {
-            return null;
-        }
+        Project project = projectRepository.findById(projectId).orElseThrow(() ->
+                new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
         ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
 
@@ -56,27 +55,16 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
 
-    // 기능 추가 필요
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO) {
-        /**
-         * 프로젝트에 참여중인 팀 멤버를 수정 페이지에서 삭제?
-         * 맞다면 팀 멤버 삭제 로직 필요
-         */
-        // 프로젝트 아이디로 기존 프로젝트 정보 조회
-        Optional<Project> optionalProject = projectRepository.findById(projectDetailDTO.getProjectId());
-        if (optionalProject.isEmpty()) {
-            // 프로젝트가 존재하지 않으면 업데이트 실패
-            return false;
-        }
 
-        // 기존 프로젝트 정보를 가져옴
-        Project existingProject = optionalProject.get();
+        Project project = projectRepository.findById(projectDetailDTO.getProjectId()).orElseThrow(() ->
+                new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
         // 빌더 패턴을 사용하여 새로운 프로젝트 엔티티 생성 및 필드 값 설정
         Project updatedProject = Project.builder()
-                .projectId(existingProject.getProjectId()) // 기존 프로젝트의 아이디 설정
+                .projectId(project.getProjectId()) // 기존 프로젝트의 아이디 설정
                 .projectName(projectDetailDTO.getProjectName())
                 .startDate(projectDetailDTO.getStartedDate())
                 .endedDate(projectDetailDTO.getEndedDate())
@@ -85,13 +73,17 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
                 .modifiedDate(new Date()) // 수정 날짜를 현재 날짜로 업데이트
                 .build();
 
-        // 프로젝트 업데이트 저장
-        projectRepository.save(updatedProject);
+        try{
+            // 프로젝트 업데이트 저장
+            projectRepository.save(updatedProject);
 
-        // Step 정보 업데이트
-        updateSteps(projectDetailDTO.getStep(), existingProject);
+            // Step 정보 업데이트
+            updateSteps(projectDetailDTO.getStep(), project);
 
-        return true; // 성공적으로 업데이트됨
+            return true; // 성공적으로 업데이트됨
+        } catch(Exception e){
+            throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
+        }
     }
 
 
@@ -107,11 +99,13 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
         List<ResponseProjectDetailDTO> projectList = new ArrayList<>();
 
         for (Long projectId : projectIdList) {
-            Project project = projectRepository.findById(projectId).orElse(null);
-            if (project != null) {
-                ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
-                projectList.add(responseProjectDetailDTO);
-            }
+            // 여기에서는 굳이인가? 사용자가 projectID로 요청하는게 아니라 DB에서 조회해서 주는거라 음...
+            Project project = projectRepository.findById(projectId).orElseThrow(() ->
+                    new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
+
+            ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
+            projectList.add(responseProjectDetailDTO);
+
         }
 
         ProjectListResponseDTO projectListResponseDTO = new ProjectListResponseDTO();
@@ -119,6 +113,60 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
 
         return projectListResponseDTO;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createProject(RequestProjectDetailDTO projectDetailDTO) {
+        //프로젝트를 우선 저장하고 projectID 가져와서 그걸 이용해서 step 저장할때 projectID를 넣어줘야됨
+        Project project = Project.builder()
+                .projectName(projectDetailDTO.getProjectName())
+                .startDate(projectDetailDTO.getStartedDate())
+                .endedDate(projectDetailDTO.getEndedDate())
+                .description(projectDetailDTO.getDescription())
+                .stack(listToString(projectDetailDTO.getStack()))
+                .createdDate(new Date())
+                .modifiedDate(new Date())
+                .isDeleted(false)
+                .build();
+        try{
+            project = projectRepository.save(project);
+
+            // 단계 저장
+            updateSteps(projectDetailDTO.getStep(),project);
+
+            return project.getProjectId();
+        } catch(Exception e){
+            throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
+        }
+    }
+
+    @Override
+    public void deleteProject(Long projectId) {
+        //프로젝트 정보
+        Project project = projectRepository.findById(projectId).orElseThrow(() ->
+                new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
+
+
+        // 빌더 패턴을 사용하여 새로운 프로젝트 엔티티 생성 및 필드 값 설정
+        Project updatedProject = Project.builder()
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .startDate(project.getStartDate())
+                .endedDate(project.getEndedDate())
+                .description(project.getDescription())
+                .stack(project.getStack())
+                .modifiedDate(new Date()) // 수정 날짜를 현재 날짜로 업데이트
+                .isDeleted(true) // 삭제되었음을 표시
+                .build();
+
+        // 프로젝트 업데이트 저장
+        projectRepository.save(updatedProject);
+    }
+
+
+    /**
+     * 공통 로직
+     */
 
     // 프로젝트 조회 하여 ResponseProjectDetailDTO 생성
     private ResponseProjectDetailDTO createResponseProjectDetailDTO(Project project) {
@@ -153,6 +201,7 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
     // 프로젝트 step 변경 메서드
+    // 메서드명이 별로인거같은데,,, 생성과 업데이트에 사용되어서
     private void updateSteps(List<RequestStep> requestSteps, Project project) {
         // 기존 단계 삭제
         // 업데이트를 원했는데 프로젝트 단계의 갯수가 줄어든다면 update가 가능?

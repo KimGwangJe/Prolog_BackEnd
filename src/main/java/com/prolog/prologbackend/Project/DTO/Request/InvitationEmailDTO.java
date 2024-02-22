@@ -2,6 +2,7 @@ package com.prolog.prologbackend.Project.DTO.Request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,7 @@ public class InvitationEmailDTO {
     @Schema(description = "초대 메일을 받는 사용자의 이메일", nullable = false, example = "k12@gmail.com")
     private String targetMail;
 
-    @NotBlank
+    @Min(1)
     @Schema(description = "초대 메일을 받을 사용자의 회원ID", nullable = false, example = "1")
     private Long targetId;
 
@@ -35,7 +36,7 @@ public class InvitationEmailDTO {
     @Schema(description = "Prolog [프로젝트 이름] 프로젝트에 초대되었습니다.", nullable = false, example = "todolist")
     private String projectName;
 
-    @NotBlank
+    @Min(1)
     @Schema(description = "초대된 프로젝트 번호", nullable = false, example = "1")
     private String projectId;
 }
