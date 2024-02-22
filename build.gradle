@@ -37,6 +37,16 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' //jwt 설정
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' //jwt 설정
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis' //redis 설정
+  
+	implementation 'com.google.code.gson:gson:2.7' //test에서 사용
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0' //swagger
+	implementation 'org.springframework.boot:spring-boot-starter-validation'// valid 유효성 검사
+	implementation 'javax.validation:validation-api:2.0.1.Final'
+	implementation 'org.slf4j:slf4j-api:2.0.3' //logging
+	implementation 'ch.qos.logback:logback-classic:1.4.1' //로그관리
+	implementation 'org.springframework.boot:spring-boot-starter-mail' //구글 SMTP
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' //초대 이메일을 보내기 위함
+	implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.32'//초대 이메일을 보내기 위함
 }
 
 tasks.named('test') {
