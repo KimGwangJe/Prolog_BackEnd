@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * Author : Kim
  * Description : UserEmail이 Email형식이 아닐 경우
@@ -29,5 +30,11 @@ public class GlobalExceptionHandler {
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errors);
+    }
+
+    @ExceptionHandler(BusinessLogicException.class)
+    public ResponseEntity handleBusinessLogicExceptions(BusinessLogicException e) {
+        return ResponseEntity.status(e.getExceptionType().getErrorCode())
+                .body(ErrorResponse.of(e.getExceptionType()));
     }
 }
