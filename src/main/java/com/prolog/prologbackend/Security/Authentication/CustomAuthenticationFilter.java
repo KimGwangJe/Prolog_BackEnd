@@ -45,12 +45,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        String type="Bearer ";
         String userName = authResult.getPrincipal().toString();
-        String accessToken = jwtProvider.createToken(JwtType.ACCESS_TOKEN,userName);
-        String refreshToken = jwtProvider.createToken(JwtType.REFRESH_TOKEN,userName);
-        response.addHeader(JwtType.ACCESS_TOKEN.getTokenType(),type+accessToken);
-        response.addHeader(JwtType.REFRESH_TOKEN.getTokenType(),type+refreshToken);
+        String accessToken = jwtProvider.createToken(JwtType.ACCESS_TOKEN, userName);
+        String refreshToken = jwtProvider.createToken(JwtType.REFRESH_TOKEN, userName);
+        response.addHeader(JwtType.ACCESS_TOKEN.getTokenType(), "Bearer "+accessToken);
+        response.addHeader(JwtType.REFRESH_TOKEN.getTokenType(), "Bearer "+refreshToken);
         response.setStatus(HttpStatus.CREATED.value());
     }
 }

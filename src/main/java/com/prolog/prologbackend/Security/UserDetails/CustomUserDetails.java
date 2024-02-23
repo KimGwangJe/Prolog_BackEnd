@@ -1,6 +1,7 @@
 package com.prolog.prologbackend.Security.UserDetails;
 
 import com.prolog.prologbackend.Member.Domain.Member;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -8,11 +9,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class CustomUserDetails implements UserDetails {
+    @Getter
     private Member member;
 
-    CustomUserDetails(Member member){
-        this.member = member;
-    }
+    CustomUserDetails(Member member){ this.member = member; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

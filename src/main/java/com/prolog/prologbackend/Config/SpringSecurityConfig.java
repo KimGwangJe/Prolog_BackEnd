@@ -1,7 +1,9 @@
 package com.prolog.prologbackend.Config;
 
 import com.prolog.prologbackend.Security.Authentication.CustomAuthenticationFilter;
+import com.prolog.prologbackend.Security.Authorization.CustomAuthorizationFilter;
 import com.prolog.prologbackend.Security.Jwt.JwtProvider;
+import com.prolog.prologbackend.Security.UserDetails.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +15,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SpringSecurityConfig {
     private final JwtProvider jwtProvider;
+    private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
 
@@ -30,7 +34,8 @@ public class SpringSecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/**").permitAll())
-                .addFilter(customAuthenticationFilter());
+                .addFilter(customAuthenticationFilter())
+                .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -46,5 +51,12 @@ public class SpringSecurityConfig {
                 new CustomAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(),jwtProvider);
         customAuthenticationFilter.setFilterProcessesUrl("/users/login");
         return customAuthenticationFilter;
+    }
+
+    @Bean
+    public CustomAuthorizationFilter customAuthorizationFilter() {
+        CustomAuthorizationFilter customAuthorizationFilter =
+                new CustomAuthorizationFilter(jwtProvider,customUserDetailsService);
+        return customAuthorizationFilter;
     }
 }
