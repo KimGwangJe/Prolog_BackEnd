@@ -1,5 +1,6 @@
 package com.prolog.prologbackend.Security.Authentication;
 
+import com.prolog.prologbackend.Security.ExceptionType.SecurityExceptionType;
 import com.prolog.prologbackend.Security.UserDetails.CustomUserDetails;
 import com.prolog.prologbackend.Security.UserDetails.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         CustomUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
         if(!passwordEncoder.matches(password, userDetails.getPassword())){
-            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException(SecurityExceptionType.BAD_CREDENTIALS.getErrorMessage());
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());

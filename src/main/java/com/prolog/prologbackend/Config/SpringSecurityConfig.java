@@ -49,7 +49,7 @@ public class SpringSecurityConfig {
     public CustomAuthenticationFilter customAuthenticationFilter() throws Exception {
         CustomAuthenticationFilter customAuthenticationFilter =
                 new CustomAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(),jwtProvider);
-        customAuthenticationFilter.setFilterProcessesUrl("/users/login");
+        customAuthenticationFilter.setFilterProcessesUrl("/members/login");
         return customAuthenticationFilter;
     }
 
