@@ -1,5 +1,7 @@
 package com.prolog.prologbackend.Security.Jwt;
 
+import com.prolog.prologbackend.Exception.BusinessLogicException;
+import com.prolog.prologbackend.Security.ExceptionType.SecurityExceptionType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,7 +42,7 @@ public class JwtProvider {
 
     public String substringToken(String token){
         if(!token.startsWith("Bearer "))
-            throw new RuntimeException("JWT 토큰 형식이 올바르지 않습니다.");
+            throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
         return token.replace("Bearer ", "");
     }
 
@@ -55,9 +57,9 @@ public class JwtProvider {
 
     public void verifyExpiration(Claims claims){
         if(!claims.getIssuer().equals("prolog"))
-            throw new RuntimeException("잘못된 토큰. 잘못된 요청");
+            throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
         if(!(claims.getExpiration().getTime() > Date.from(Instant.now()).getTime()))
-            throw new RuntimeException("만료된 토큰. 재발급 필요");
+            throw new BusinessLogicException(SecurityExceptionType.EXPIRED_JWT);
     }
 
     public String getEmail(Claims claims){
@@ -66,13 +68,13 @@ public class JwtProvider {
 
     public void verifyType(JwtType type, Claims claims){
         if(!type.getTokenType().equals(claims.get("token_type")))
-            throw new RuntimeException("요청에 맞지 않는 토큰");
+            throw new BusinessLogicException(SecurityExceptionType.BAD_REQUEST_JWT);
     }
 
     public void verifyWithRedisToken(String token, String email){
         String redisToken = redisRepository.findByEmail(email);
-        if(redisToken == null || !token.equals(redisToken)){
-            throw new RuntimeException("올바르지 않은 레디스 토큰.");
+        if(!token.equals(redisToken)){
+            throw new BusinessLogicException(SecurityExceptionType.UNAUTHORIZED);
         }
     }
 }
