@@ -33,7 +33,8 @@ public class SpringSecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/**").permitAll())
+                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/**").hasRole("USER")
+                        .anyRequest().permitAll())
                 .addFilter(customAuthenticationFilter())
                 .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
