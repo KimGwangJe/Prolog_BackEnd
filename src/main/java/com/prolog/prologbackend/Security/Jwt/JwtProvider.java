@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -53,13 +52,6 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public void verifyExpiration(Claims claims){
-        if(!claims.getIssuer().equals("prolog"))
-            throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
-        if(!(claims.getExpiration().getTime() > Date.from(Instant.now()).getTime()))
-            throw new BusinessLogicException(SecurityExceptionType.EXPIRED_JWT);
     }
 
     public String getEmail(Claims claims){

@@ -39,7 +39,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             try {
                 String token = jwtProvider.substringToken(request.getHeader("Token"));
                 Claims claims = jwtProvider.parseToken(token);
-                jwtProvider.verifyExpiration(claims);
 
                 String email = jwtProvider.getEmail(claims);
 
@@ -66,6 +65,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 setErrorResponse(response, exception.getExceptionType());
             }catch (UsernameNotFoundException exception){
                 setErrorResponse(response, SecurityExceptionType.NOT_FOUND);
+            }catch (ExpiredJwtException exception){
+                setErrorResponse(response, SecurityExceptionType.EXPIRED_JWT);
             }
         }
     }
