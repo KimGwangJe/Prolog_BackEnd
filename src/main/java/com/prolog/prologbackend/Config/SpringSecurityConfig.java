@@ -1,6 +1,7 @@
 package com.prolog.prologbackend.Config;
 
 import com.prolog.prologbackend.Security.Authentication.CustomAuthenticationFilter;
+import com.prolog.prologbackend.Security.Authorization.CustomAccessDeniedHandler;
 import com.prolog.prologbackend.Security.Authorization.CustomAuthorizationFilter;
 import com.prolog.prologbackend.Security.Jwt.JwtProvider;
 import com.prolog.prologbackend.Security.UserDetails.CustomUserDetailsService;
@@ -24,6 +25,7 @@ public class SpringSecurityConfig {
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 
     @Bean
@@ -33,10 +35,13 @@ public class SpringSecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/api/**").hasRole("USER")
-                        .anyRequest().permitAll())
+                .authorizeHttpRequests((authorize) ->
+                        authorize.requestMatchers("/api/**").hasRole("USER")
+                                .anyRequest().permitAll())
                 .addFilter(customAuthenticationFilter())
-                .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling((exceptionHandling) ->
+                        exceptionHandling.accessDeniedHandler(customAccessDeniedHandler));
 
         return http.build();
     }
