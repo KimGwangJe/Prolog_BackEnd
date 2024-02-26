@@ -30,7 +30,7 @@ public class MemberService {
                 .status(MemberStatus.UNVERIFIED)
                 .profileImage("profileImageUrl")
                 .profileName("basicProfileImage")
-                .role("USER")
+                .roles("ROLE_USER")
                 .build();
         memberRepository.save(newMember);
     }

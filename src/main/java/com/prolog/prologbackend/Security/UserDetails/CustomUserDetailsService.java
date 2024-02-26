@@ -2,6 +2,7 @@ package com.prolog.prologbackend.Security.UserDetails;
 
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
+import com.prolog.prologbackend.Security.ExceptionType.SecurityExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +16,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(username)
-                .orElseThrow(() -> {throw new UsernameNotFoundException("해당 이메일과 일치하는 회원이 없습니다.");});
+                .orElseThrow(() -> {
+                    throw new UsernameNotFoundException(SecurityExceptionType.NOT_FOUND.getErrorMessage());
+                });
         return new CustomUserDetails(member);
     }
 }
