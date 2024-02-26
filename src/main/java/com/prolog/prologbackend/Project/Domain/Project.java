@@ -48,6 +48,10 @@ public class Project {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
+    public boolean getIsDeleted(){
+        return isDeleted;
+    }
+
     @Builder // 생성에 사용
     public Project(
             Long projectId, String projectName, Date startDate, Date endedDate,

@@ -1,7 +1,7 @@
 package com.prolog.prologbackend.Notes.Controller;
 
 import com.prolog.prologbackend.Notes.DTO.NotesListResponseDTO;
-import com.prolog.prologbackend.Notes.Service.ProjectNotesService;
+import com.prolog.prologbackend.Notes.Service.NotesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Project Notes API", description = "특정 프로젝트에서 사용자가 작성한 일지 정보 반환")
-public class ProjectNotesController {
-    private final ProjectNotesService projectNotesService;
+public class NotesController {
+    private final NotesService notesService;
 
     @Operation(summary = "프로젝트에서 사용자가 작성한 일지를 반환합니다.")
     @GetMapping("/notes-list")
@@ -40,7 +40,7 @@ public class ProjectNotesController {
             @RequestParam Long projectId
 
     ){
-        NotesListResponseDTO notesList = projectNotesService.getProjectNotes(memberId,projectId);
+        NotesListResponseDTO notesList = notesService.getProjectNotes(memberId,projectId);
         return ResponseEntity.status(HttpStatus.OK).body(notesList);
     }
 }

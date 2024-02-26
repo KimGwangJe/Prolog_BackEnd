@@ -132,7 +132,9 @@ public class ProjectServiceImpl implements ProjectService {
             project = projectRepository.save(project);
 
             // 단계 저장
-            updateSteps(projectDetailDTO.getStep(),project);
+            if(!projectDetailDTO.getStep().isEmpty()){
+                updateSteps(projectDetailDTO.getStep(),project);
+            }
 
             return project.getProjectId();
         } catch(Exception e){
