@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * Description :
 */
 @Service
-public class ProjectNotesServiceImpl implements ProjectNotesService{
+public class NotesServiceImpl implements NotesService {
     @Override
     public NotesListResponseDTO getProjectNotes(Long memberId, Long projectId) {
         NotesListResponseDTO notesListResponseDTO = new NotesListResponseDTO();

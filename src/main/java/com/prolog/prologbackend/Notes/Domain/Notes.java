@@ -1,5 +1,6 @@
 package com.prolog.prologbackend.Notes.Domain;
 
+import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -39,8 +40,8 @@ public class Notes {
     @Column(name = "content")
     private String content;
 
-//    @ManyToOne
-//    @JoinColumn(name = "team_member_id")
-//    private TeamMember teamMember;
+    @ManyToOne
+    @JoinColumn(name = "team_member_id")
+    private TeamMember teamMember;
 
 }

@@ -28,13 +28,6 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(ProjectExceptionType.EMAIL_FORMAT_ERROR));
     }
 
-    //데이터에 null값이 포함되어있다면
-    @ExceptionHandler(BusinessLogicException.class)
-    public ResponseEntity handleBusinessLogicException(BusinessLogicException e){
-        return ResponseEntity.status(e.getExceptionType().getErrorCode())
-                .body(ErrorResponse.of(e.getExceptionType()));
-    }
-
     //Date Format이 제대로 오지 않았을
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
