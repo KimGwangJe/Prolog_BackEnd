@@ -46,7 +46,6 @@ dependencies {
 	implementation 'ch.qos.logback:logback-classic:1.4.1' //로그관리
 	implementation 'org.springframework.boot:spring-boot-starter-mail' //구글 SMTP
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' //초대 이메일을 보내기 위함
-	implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.32'//초대 이메일을 보내기 위함
 }
 
 tasks.named('test') {
