@@ -1,26 +1,20 @@
 package com.prolog.prologbackend.Member.Controller;
 
-import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
-import com.prolog.prologbackend.Member.Service.MemberService;
-import jakarta.validation.Valid;
+import com.prolog.prologbackend.Member.DTO.Response.SimpleMemberDto;
+import com.prolog.prologbackend.Member.Domain.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import static org.springframework.http.HttpStatus.CREATED;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
-    private final MemberService memberService;
 
-    @PostMapping
-    ResponseEntity joinMember(@Valid @RequestBody MemberJoinDto joinDto){
-        memberService.joinMember(joinDto);
-        return ResponseEntity.status(CREATED).build();
+    @GetMapping
+    ResponseEntity getMember(@AuthenticationPrincipal Member member){
+        return ResponseEntity.status(HttpStatus.OK).body(SimpleMemberDto.of(member));
     }
 }

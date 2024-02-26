@@ -5,6 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @NoArgsConstructor
 @Getter
 @Entity(name="member")
@@ -22,11 +26,11 @@ public class Member extends BaseTimeEntity{
     private boolean isDeleted;
     @Enumerated(value= EnumType.STRING)
     private MemberStatus status;
-    private String role;
+    private String roles;
 
     @Builder
     Member(String email, String password, String nickname, String phone, String profileImage,
-                      String profileName, boolean isDeleted, MemberStatus status, String role){
+                      String profileName, boolean isDeleted, MemberStatus status, String roles){
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -35,11 +39,18 @@ public class Member extends BaseTimeEntity{
         this.profileName = profileName;
         this.isDeleted = isDeleted;
         this.status = status;
-        this.role = role;
+        this.roles = roles;
     }
 
     @Override
     public String toString(){
         return "Member{id:"+id+"}";
+    }
+
+    public List<String> getRoleList(){
+        if(this.roles.length() > 0){
+            return Arrays.asList(this.roles.split(","));
+        }
+        return new ArrayList<>();
     }
 }
