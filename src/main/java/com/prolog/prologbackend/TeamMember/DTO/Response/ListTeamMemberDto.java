@@ -1,5 +1,6 @@
 package com.prolog.prologbackend.TeamMember.DTO.Response;
 
+import com.prolog.prologbackend.TeamMember.Domain.Part;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import lombok.Getter;
 
@@ -10,7 +11,7 @@ import lombok.Getter;
 public class ListTeamMemberDto {
     private Long id;
     private String nickName;
-    private String part;
+    private Part part;
     private String profileImage;
 
     public static ListTeamMemberDto of(TeamMember teamMember){

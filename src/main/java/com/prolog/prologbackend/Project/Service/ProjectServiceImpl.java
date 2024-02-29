@@ -78,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.save(updatedProject);
 
             // Step 정보 업데이트
-            updateSteps(projectDetailDTO.getStep(), project);
+        //    updateSteps(projectDetailDTO.getStep(), project);
 
             return true; // 성공적으로 업데이트됨
         } catch(Exception e){
@@ -132,9 +132,9 @@ public class ProjectServiceImpl implements ProjectService {
             project = projectRepository.save(project);
 
             // 단계 저장
-            if(!projectDetailDTO.getStep().isEmpty()){
-                updateSteps(projectDetailDTO.getStep(),project);
-            }
+         //   if(!projectDetailDTO.getStep().isEmpty()){
+        //        updateSteps(projectDetailDTO.getStep(),project);
+        //    }
 
             return project.getProjectId();
         } catch(Exception e){
@@ -267,4 +267,10 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
+    // 팀멤버 생성 시 프로젝트를 조회하기 위한 메서드
+    public Project getProject(Long projectId){
+        return projectRepository.findById(projectId).orElseThrow(
+                () -> { throw new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND); }
+        );
+    }
 }

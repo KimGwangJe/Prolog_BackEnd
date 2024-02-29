@@ -3,9 +3,12 @@ package com.prolog.prologbackend.TeamMember.Service;
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Project.Domain.Project;
+import com.prolog.prologbackend.Project.Service.ProjectServiceImpl;
+import com.prolog.prologbackend.TeamMember.Domain.Part;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
 import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
+    private final ProjectServiceImpl projectService;
+
+    @Transactional
+    public void createTeamMember(String part, Member member, Long projectId) {
+        Project project = projectService.getProject(projectId);
+        teamMemberRepository.findByMemberAndProject(member,project)
+                .ifPresent( t -> { throw new BusinessLogicException(TeamMemberExceptionType.CONFLICT); });
+        Part teamMemberPart = Part.of(part);
+        TeamMember teamMember = TeamMember.builder()
+                .part(teamMemberPart).member(member).project(project)
+                .build();
+        teamMemberRepository.save(teamMember);
+    }
 
     /*
     1) 프로젝트 상세 정보 조회
@@ -24,7 +40,6 @@ public class TeamMemberService {
      * -> 프로젝트가 있는데 팀멤버 정보가 하나도 없다는 건 에러이므로 잘못된 요청.
      */
     public List<TeamMember> getListByProject(Project project){
-        //
         return teamMemberRepository.findAllByProject(project).orElseThrow(
                 () -> { throw new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND); }
         );
