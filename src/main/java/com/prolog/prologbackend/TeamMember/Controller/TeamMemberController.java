@@ -1,15 +1,13 @@
 package com.prolog.prologbackend.TeamMember.Controller;
 
 import com.prolog.prologbackend.Member.Domain.Member;
+import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/teamMembers")
@@ -19,9 +17,15 @@ public class TeamMemberController {
 
     @PostMapping
     public ResponseEntity createTeamMember(@AuthenticationPrincipal Member member,
-                                           @RequestParam String part,
-                                           @RequestParam Long projectId){
-        teamMemberService.createTeamMember(part, member, projectId);
+                                           @RequestBody CreateTeamMemberDto createTeamMemberDto){
+        teamMemberService.createTeamMember(createTeamMemberDto.getParts(), member, createTeamMemberDto.getProjectId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{team-id}")
+    public ResponseEntity removeTeamMember(@AuthenticationPrincipal Member member,
+                                           @PathVariable("team-id") Long teamId){
+        teamMemberService.removeTeamMember(member, teamId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

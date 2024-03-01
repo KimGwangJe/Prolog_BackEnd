@@ -15,8 +15,7 @@ public class TeamMember {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name="team_member_id")
     private Long id;
-    @Enumerated(value= EnumType.STRING)
-    private Part part;
+    private String part;
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
@@ -25,7 +24,7 @@ public class TeamMember {
     private Project project;
 
     @Builder
-    TeamMember(Part part, Member member, Project project){
+    TeamMember(String part, Member member, Project project){
         this.part = part;
         this.member = member;
         this.project = project;
