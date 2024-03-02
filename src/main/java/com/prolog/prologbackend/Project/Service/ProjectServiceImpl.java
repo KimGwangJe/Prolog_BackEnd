@@ -78,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.save(updatedProject);
 
             // Step 정보 업데이트
-        //    updateSteps(projectDetailDTO.getStep(), project);
+            updateSteps(projectDetailDTO.getStep(), project);
 
             return true; // 성공적으로 업데이트됨
         } catch(Exception e){
@@ -132,9 +132,9 @@ public class ProjectServiceImpl implements ProjectService {
             project = projectRepository.save(project);
 
             // 단계 저장
-         //   if(!projectDetailDTO.getStep().isEmpty()){
-        //        updateSteps(projectDetailDTO.getStep(),project);
-        //    }
+            if(!projectDetailDTO.getStep().isEmpty()){
+                updateSteps(projectDetailDTO.getStep(),project);
+            }
 
             return project.getProjectId();
         } catch(Exception e){
