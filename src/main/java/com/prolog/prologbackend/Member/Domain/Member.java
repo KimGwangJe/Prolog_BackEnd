@@ -53,4 +53,18 @@ public class Member extends BaseTimeEntity{
         }
         return new ArrayList<>();
     }
+
+    public void updateEmail(String email){
+        if(!this.email.equals(email))
+            this.email = email;
+    }
+
+    public void updatePassword(String password){
+        this.password = password;
+    }
+
+    public void updateNickname(String nickname){
+        if(!this.nickname.equals(nickname))
+            this.nickname = nickname;
+    }
 }
