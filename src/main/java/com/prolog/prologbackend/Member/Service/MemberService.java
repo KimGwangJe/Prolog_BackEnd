@@ -60,4 +60,21 @@ public class MemberService {
             member.updatePassword(encodePassword);
         }
     }
+
+    /**
+     * 이메일 중복 확인
+     * : 이메일 수정 시 이미 사용중인 이메일인지 확인하여 수정 가능 여부 반환
+     *
+     * @param member : 요청 보낸 사용자의 정보
+     * @param email : 중복 확인할 이메일
+     * @return : 자신의 이메일인 경우 false, 변경 가능한 이메일인 경우 true 반환
+     * @throws : 이미 존재하는 이메일의 경우 에러 발생 (409)
+     */
+    public boolean validateEmail(Member member, String email){
+        if(member.getEmail().equals(email))
+            return false;
+        if(memberRepository.findByEmail(email).isPresent())
+            throw new BusinessLogicException(MemberExceptionType.MEMBER_CONFLICT);
+        return true;
+    }
 }
