@@ -6,16 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 
-/**
- * Author : Kim
- * Date : 2024-02-19
- * Description : 프로젝트 생성, 수정시에 사용
- */
 
 @Getter
 @Setter

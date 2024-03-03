@@ -11,14 +11,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 
-/**
- * Author : Kim
- * Date : 2024-02-17
- * Description : 이메일 전송 관련 Service입니다.
- * 나중에 Prolog의 이메일을 생성하게 된다면 setFrom의 이메일을 변경해야 됩니다.
- * 02-17 Thymeleaf 사용으로 결정
- */
-
 @Service
 @RequiredArgsConstructor
 public class InvitationEmailService {
@@ -27,7 +19,7 @@ public class InvitationEmailService {
     private final TemplateEngine templateEngine;
 
     @Async
-    public boolean sendMailReject(InvitationEmailDTO emailDTO) throws Exception {
+    public boolean sendMail(InvitationEmailDTO emailDTO) throws Exception {
         boolean msg = false;
 
         Context context = new Context();

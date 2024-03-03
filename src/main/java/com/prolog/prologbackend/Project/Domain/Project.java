@@ -7,12 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-/**
- * Author : Kim
- * Date : 2024-02-18
- * Description : teamMember Entity 생성시 관계 정의 해줘야됨
- */
-
 @Entity
 @Table(name = "project")
 @Getter
@@ -52,7 +46,7 @@ public class Project {
         return isDeleted;
     }
 
-    @Builder // 생성에 사용
+    @Builder
     public Project(
             Long projectId, String projectName, Date startDate, Date endedDate,
             String description, String stack, Date createdDate,

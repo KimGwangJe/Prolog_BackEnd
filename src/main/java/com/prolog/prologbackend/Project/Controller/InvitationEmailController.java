@@ -12,12 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-/**
- * Author : Kim
- * Date : 2024-02-16
- * Description : 프로젝트 초대 이메일 전 CONTROLLER입니다.
- * InvitationEmailDTO에 userId 추가
- */
 
 @RestController
 @RequiredArgsConstructor
@@ -25,13 +19,12 @@ import javax.validation.Valid;
 public class InvitationEmailController {
     private final InvitationEmailService emailService;
 
-    @PostMapping("/invitation/email")
+    @PostMapping("/api/invitation/email")
     public ResponseEntity<Void> emailSend(@Valid @RequestBody InvitationEmailDTO emailDTO){
         try{
-            emailService.sendMailReject(emailDTO);
+            emailService.sendMail(emailDTO);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch(Exception e){
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

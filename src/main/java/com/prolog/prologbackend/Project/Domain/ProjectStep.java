@@ -30,7 +30,7 @@ public class ProjectStep {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @Builder // 수정에 사용
+    @Builder
     public ProjectStep(String stepName, Date startedDate, Date endedDate, Project project) {
         this.stepName = stepName;
         this.startedDate = startedDate;
