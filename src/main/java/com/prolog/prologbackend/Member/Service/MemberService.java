@@ -7,16 +7,20 @@ import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Domain.MemberStatus;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
+import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TeamMemberService teamMemberService;
 
     @Transactional
      public void joinMember(MemberJoinDto joinDto){
@@ -76,5 +80,18 @@ public class MemberService {
         if(memberRepository.findByEmail(email).isPresent())
             throw new BusinessLogicException(MemberExceptionType.MEMBER_CONFLICT);
         return true;
+    }
+
+    /**
+     * 회원 탈퇴
+     * : 회원 상태 변경 전 관련된 팀멤버 엔티티 모두 삭제 선행
+     *
+     * @param member : 요청 보낸 (탈퇴를 진행할) 사용자의 정보
+     */
+    @Transactional
+    public void removeMember(Member member){
+        teamMemberService.removeTeamMemberByMember(member);
+        LocalDateTime updateDate = LocalDateTime.now();
+        memberRepository.updateMemberStatus(updateDate, member.getId());
     }
 }
