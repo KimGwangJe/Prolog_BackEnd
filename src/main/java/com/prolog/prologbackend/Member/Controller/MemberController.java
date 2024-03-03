@@ -38,4 +38,10 @@ public class MemberController {
         memberService.updateMember(member.getEmail(), dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @DeleteMapping
+    ResponseEntity withdrawMember(@AuthenticationPrincipal Member member){
+        memberService.removeMember(member);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
