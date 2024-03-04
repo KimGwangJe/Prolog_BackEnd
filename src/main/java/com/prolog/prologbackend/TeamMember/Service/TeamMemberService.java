@@ -50,6 +50,7 @@ public class TeamMemberService {
      * @param member : 요청보낸 사용자의 정보
      * @param teamId : 삭제를 원하는 팀멤버의 id
      */
+    @Transactional
     public void removeTeamMember(Member member, Long teamId){
         TeamMember teamMember = teamMemberRepository.findById(teamId).orElseThrow(() -> {
             throw new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND);
@@ -69,8 +70,27 @@ public class TeamMemberService {
     }
 
     /**
+     * 특정 멤버의 모든 팀멤버 엔티티 삭제
+     * : 회원 탈퇴 시 호출
+     * : 팀멤버 삭제 전 연관 프로젝트 및 일지 삭제 선행
+     *
+     * @param member : 특정 회원을 기준으로 팀멤버 목록 조회
+     */
+    @Transactional
+    public void removeTeamMemberByMember(Member member){
+        List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
+        List<Long> projectIds = teamMembers.stream().map(t -> t.getProject().getProjectId()).toList();
+        //추가할 예정 1 : 일치하는 프로젝트 삭제
+        //1) Id : List<Long> projectIds = teamMembers.stream().map(t -> t.getProject().getProjectId()).toList();
+        //2) Entity : List<Project> projects = teamMembers.stream().map(TeamMember::getProject).toList();
+        List<Long> teamMemberIds = teamMembers.stream().map(TeamMember::getId).toList();
+        //추가할 예정 2 : 팀멤버와 연관된 일지 삭제 - 프로젝트 엔티티 혹은 아이디를 인자로 넘겨줌
+        teamMemberRepository.deleteAllByIdInBatch(teamMemberIds);
+    }
+
+    /**
      * 프로젝트 정보와 일치하는 모든 팀멤버의 엔티티를 반환
-     * (프로젝트 상세 정보 조회 시 호출)
+     * : 프로젝트 상세 정보 조회 시 호출
      *
      * @param project : 프로젝트 기준으로 팀멤버 조회
      * @return : 조회된 팀멤버 엔티티의 목록 반환
@@ -83,7 +103,7 @@ public class TeamMemberService {
 
     /**
      * 회원 정보와 일치하는 모든 팀멤버의 엔티티를 반환
-     * (마이페이지 프로젝트 목록 조회 시 호출)
+     * : 마이페이지 프로젝트 목록 조회 시 호출
      *
      * @param member : 회원 기준으로 팀멤버 조회
      * @return : 조회된 팀멤버 엔티티의 목록 반환
@@ -94,7 +114,7 @@ public class TeamMemberService {
 
     /**
      * 특정 회원의 특정 프로젝트와 일치하는 팀멤버 엔티티를 반환
-     * (특정 회원의 일지 목록 조회 시 호출)
+     * : 특정 회원의 일지 목록 조회 시 호출
      *
      * @param member : 회원 기준으로 팀멤버 조회
      * @param project : 프로젝트 기준으로 팀멤버 조회
