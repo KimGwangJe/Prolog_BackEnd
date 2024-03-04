@@ -7,11 +7,11 @@ import com.prolog.prologbackend.Project.DTO.Response.ResponseProjectDetailDTO;
 public interface ProjectService {
     ResponseProjectDetailDTO getProjectInfo(Long projectId);
 
-    boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO, String email);
+    boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO, Long memberId);
 
-    ProjectListResponseDTO getProjectList(String userEmail);
+    ProjectListResponseDTO getProjectList(Long memberId);
 
     Long createProject(RequestProjectDetailDTO projectDetailDTO);
 
-    void deleteProject(Long projectId,String email);
+    void deleteProject(Long projectId,Long memberId);
 }

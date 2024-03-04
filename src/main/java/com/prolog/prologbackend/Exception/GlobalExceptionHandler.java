@@ -1,8 +1,6 @@
 package com.prolog.prologbackend.Exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.prolog.prologbackend.Notes.DTO.NotesType;
-import com.prolog.prologbackend.Notes.ExceptionType.NotesExceptionType;
 import com.prolog.prologbackend.Project.ExceptionType.ProjectExceptionType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,17 +37,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        if (e.getCause() instanceof InvalidFormatException) {
+        if(e.getCause() instanceof InvalidFormatException){
             InvalidFormatException t = (InvalidFormatException) e.getCause();
-            if (t.getTargetType().isAssignableFrom(NotesType.class)) {
-                // NotesType이 잘못된 형식으로 전달된 경우
-                return ResponseEntity.status(NotesExceptionType.NOTES_TYPE_ERROR.getErrorCode())
-                        .body(ErrorResponse.of(NotesExceptionType.NOTES_TYPE_ERROR));
-            } else if (t.getTargetType().isAssignableFrom(Date.class)) {
-                // Date 형식이 잘못된 경우
-                return ResponseEntity.status(ProjectExceptionType.DATE_FORMAT_ERROR.getErrorCode())
-                        .body(ErrorResponse.of(ProjectExceptionType.DATE_FORMAT_ERROR));
-            }
+            ErrorResponse response = ErrorResponse.of(HttpStatus.BAD_REQUEST.value(),
+                    t.getPath().get(0).getFieldName()+" : 잘못된 형식의 값입니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
         }
         return ResponseEntity.status(ProjectExceptionType.DATE_FORMAT_ERROR.getErrorCode())
                 .body(ErrorResponse.of(ProjectExceptionType.DATE_FORMAT_ERROR));

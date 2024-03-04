@@ -109,8 +109,8 @@ class ProjectServiceImplTest {
 
         RequestProjectDetailDTO requestProjectDetailDTO = requestProjectDetailDTO();
 
-        String email = "test1234@naver.com";
-        boolean isUpdated = projectService.projectUpdate(requestProjectDetailDTO, email);
+        Long memberId = 1L;
+        boolean isUpdated = projectService.projectUpdate(requestProjectDetailDTO, memberId);
 
         // then
         assertTrue(isUpdated);
@@ -150,7 +150,7 @@ class ProjectServiceImplTest {
         lenient().when(teamMemberRepository.findAllByMember(any())).thenReturn(teamMembers);
 
         // when
-        ProjectListResponseDTO projectListResponseDTO = projectService.getProjectList("test1234@naver.com");
+        ProjectListResponseDTO projectListResponseDTO = projectService.getProjectList(1L);
 
         // then
         assertNotNull(projectListResponseDTO); // 응답이 null이 아닌지 확인
@@ -200,7 +200,7 @@ class ProjectServiceImplTest {
                 .part("Leader")
                 .build();
 
-        String email = "test1234@naver.com";
+        Long memberId = 1L;
 
         when(projectRepository.findById(anyLong())).thenReturn(Optional.of(mockProject));
 
@@ -209,7 +209,7 @@ class ProjectServiceImplTest {
         when(teamMemberRepository.findByMemberAndProject(any(), any())).thenReturn(Optional.ofNullable(teamMember));
 
         // when
-        projectService.deleteProject(projectId,email);
+        projectService.deleteProject(projectId,memberId);
 
         ArgumentCaptor<Project> projectCaptor = ArgumentCaptor.forClass(Project.class);
         verify(projectRepository).save(projectCaptor.capture()); // save 메서드에 전달된 Project 객체를 캡처

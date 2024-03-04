@@ -51,8 +51,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO, String email) {
-        Member member = memberRepository.findByEmail(email).orElse(null);
+    public boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElse(null);
 
         Project project = projectRepository.findById(projectDetailDTO.getProjectId()).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
@@ -89,8 +89,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProjectListResponseDTO getProjectList(String userEmail) {
-        Member member = memberRepository.findByEmail(userEmail).orElse(null);
+    public ProjectListResponseDTO getProjectList(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElse(null);
         List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
 
         List<ResponseProjectDetailDTO> projectList = new ArrayList<>();
@@ -134,8 +134,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void deleteProject(Long projectId,String email) {
-        Member member = memberRepository.findByEmail(email).orElse(null);
+    public void deleteProject(Long projectId,Long memberId) {
+        Member member = memberRepository.findById(memberId).orElse(null);
 
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));

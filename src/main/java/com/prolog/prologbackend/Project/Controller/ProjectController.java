@@ -1,6 +1,7 @@
 package com.prolog.prologbackend.Project.Controller;
 
 import com.prolog.prologbackend.Exception.BusinessLogicException;
+import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ProjectListResponseDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ResponseProjectDetailDTO;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +37,9 @@ public class ProjectController {
     @Operation(summary = "특정 프로젝트의 상세 정보를 가져옵니다.")
     @GetMapping("/project/info")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success" , content = @Content(schema = @Schema(implementation = ResponseProjectDetailDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Success" ,
+                    content = @Content(schema = @Schema(implementation = ResponseProjectDetailDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<ResponseProjectDetailDTO> getProject(
             @Parameter(name = "프로젝트 ID", description = "프로젝트 구분 번호입니다.", example = "1", required = true)
@@ -54,26 +58,21 @@ public class ProjectController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<Void> projectUpdate(
-            HttpServletRequest request,
+            @AuthenticationPrincipal Member member,
             @Parameter(name = "프로젝트 정보", description = "수정된 프로젝트의 정보가 들어있습니다.", required = true)
             @Valid @RequestBody RequestProjectDetailDTO requestProjectDetailDTO,
             BindingResult bindingResult
     ){
-        // JWT에서 이메일을 추출합니다.
-        String token = jwtProvider.substringToken(request.getHeader("ACCESS_TOKEN"));
-        Claims claims = jwtProvider.parseToken(token);
-
-        String email = jwtProvider.getEmail(claims);
         if (bindingResult.hasErrors() || requestProjectDetailDTO.getProjectId() == null) {
             throw new BusinessLogicException(ProjectExceptionType.INVALID_INPUT_VALUE);
         }
-        projectService.projectUpdate(requestProjectDetailDTO,email);
+        projectService.projectUpdate(requestProjectDetailDTO,member.getId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 
     @Operation(summary = "사용자가 포함된 프로젝트 리스트를 반환합니다.")
-    @GetMapping("/project/list")
+    @GetMapping("/api/project/list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success" ,
                     content = @Content(schema = @Schema(implementation = ProjectListResponseDTO.class))),
@@ -82,16 +81,9 @@ public class ProjectController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
     })
     public ResponseEntity<ProjectListResponseDTO> getProjectList(
-            HttpServletRequest request
+            @AuthenticationPrincipal Member member
     ){
-        // JWT에서 이메일을 추출합니다.
-        String token = jwtProvider.substringToken(request.getHeader("ACCESS_TOKEN"));
-        Claims claims = jwtProvider.parseToken(token);
-
-        String email = jwtProvider.getEmail(claims);
-
-        // 추출한 이메일을 사용하여 프로젝트 리스트를 조회합니다.
-        ProjectListResponseDTO projectList = projectService.getProjectList(email);
+        ProjectListResponseDTO projectList = projectService.getProjectList(member.getId());
 
         if (projectList == null || projectList.getProjectList().isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(projectList);
@@ -108,7 +100,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
     })
     public ResponseEntity<Long> createProject(
-            @Parameter(name = "프로젝트 데이터", description = "프로젝트의 세부 데이터를 받아 저장하고 ProjectID를 반환합니다.", required = true)
+            @Parameter(name = "프로젝트 데이터", description = "프로젝트의 세부 데이터입니다.", required = true)
             @Valid @RequestBody RequestProjectDetailDTO projectDetailDTO,
             BindingResult bindingResult
     ){
@@ -122,23 +114,18 @@ public class ProjectController {
     @Operation(summary = "프로젝트를 삭제하고 HttpStatus를 반환합니다.")
     @PutMapping("/api/project/delete")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success")
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<Void> deleteProject(
-            HttpServletRequest request,
-            @Parameter(name = "Project 구분 Id", description = "프로젝트를 구분하는 ID.", required = true)
+            @AuthenticationPrincipal Member member,
+            @Parameter(name = "ProjectId", description = "프로젝트를 구분하는 ID.", required = true)
             @RequestParam(name = "projectId", required = false) Long projectId
     ){
-        // JWT에서 이메일을 추출합니다.
-        String token = jwtProvider.substringToken(request.getHeader("ACCESS_TOKEN"));
-        Claims claims = jwtProvider.parseToken(token);
-
-        String email = jwtProvider.getEmail(claims);
-
-        if(Objects.isNull(projectId) || Objects.isNull(email)){
+        if(Objects.isNull(projectId) || Objects.isNull(member.getId())){
             throw new BusinessLogicException(ProjectExceptionType.INVALID_INPUT_VALUE);
         }
-        projectService.deleteProject(projectId,email);
+        projectService.deleteProject(projectId,member.getId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

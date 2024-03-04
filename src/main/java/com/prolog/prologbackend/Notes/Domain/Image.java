@@ -5,12 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Author : Kim
- * Date : 2024-02-27
- * Description : 우선은 Notes/Domain에 생성 위치가 여기가 맞는지는 의문
-*/
-
 @Entity
 @Table(name="image")
 @Getter

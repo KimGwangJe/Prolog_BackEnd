@@ -71,6 +71,7 @@ public class NotesController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<Void> createNotes(
+            @Parameter(name = "requestNotesDTO", description = "일지의 내용이 들어갑니다.", required = true)
             @Valid @RequestBody RequestNotesDTO requestNotesDTO,
             BindingResult bindingResult
     ) {
@@ -82,12 +83,13 @@ public class NotesController {
     }
 
     @Operation(summary = "수정된 일지 정보를 받아 저장합니다.")
-    @PutMapping("/api/notes/update")
+    @PutMapping("/notes/update") // + /api
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<Void> updateNotes(
+            @Parameter(name = "requestNotesDTO", description = "일지의 수정된 내용이 들어갑니다.", required = true)
             @Valid @RequestBody RequestNotesDTO requestNotesDTO,
             BindingResult bindingResult
     ){
@@ -124,6 +126,7 @@ public class NotesController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<URL> saveNotesImage(
+            @Parameter(name = "file", description = "이미지를 받습니다.", required = true)
             @RequestPart(value = "file") MultipartFile file
     ) throws IOException {
         if(file.isEmpty()) throw new BusinessLogicException(ImageExceptionType.NOTES_NOT_FOUND);
