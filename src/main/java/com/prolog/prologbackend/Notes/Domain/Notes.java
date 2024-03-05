@@ -2,17 +2,17 @@ package com.prolog.prologbackend.Notes.Domain;
 
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-/**
- * Author : Kim
- * Date : 2024-02-18
- * Description : teamMember Entity 생성시 주석 제거 필요
- */
 
 @Entity
 @Table(name = "daily_log")
+@Getter
+@NoArgsConstructor
 public class Notes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +40,24 @@ public class Notes {
     @Column(name = "content")
     private String content;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "team_member_id")
     private TeamMember teamMember;
 
+    @Builder
+    public Notes(
+            Long notesId, Date date, String title,
+            String summary, Date createdDate, Date modifiedDate,
+            String type, String content, TeamMember teamMember
+    ){
+        this.notesId = notesId;
+        this.date = date;
+        this.title = title;
+        this.summary = summary;
+        this.createdDate = createdDate;
+        this.modifiedDate = modifiedDate;
+        this.type = type;
+        this.content = content;
+        this.teamMember = teamMember;
+    }
 }

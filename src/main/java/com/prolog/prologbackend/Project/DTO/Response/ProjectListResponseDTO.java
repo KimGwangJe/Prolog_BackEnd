@@ -6,12 +6,6 @@ import lombok.Setter;
 
 import java.util.List;
 
-/**
- * Author : Kim
- * Date : 2024-02-17
- * Description : 프로젝트 리스트를 담아서 반환합니다.
- * ProjectDetailDTO에 포함됩니다.
- */
 
 @Getter
 @Setter

@@ -4,17 +4,14 @@ import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ProjectListResponseDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ResponseProjectDetailDTO;
 
-/**
- * 2024-02-17 Project List 파일과 합침
- */
 public interface ProjectService {
     ResponseProjectDetailDTO getProjectInfo(Long projectId);
 
-    boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO);
+    boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO, Long memberId);
 
-    ProjectListResponseDTO getProjectList(Long userId);
+    ProjectListResponseDTO getProjectList(Long memberId);
 
     Long createProject(RequestProjectDetailDTO projectDetailDTO);
 
-    void deleteProject(Long projectId);
+    void deleteProject(Long projectId,Long memberId);
 }

@@ -7,13 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Author : Kim
- * Date : 2024-02-11
- * Description : targetMail, Nickname, Subject, ProjectNum, Link가 우선적으로 필요합니다.
- * 화면을 구성해서 전달하는 것이 좋을것 같으며
- * 리다이렉션에 targetId와 projectId를 넣어서 Save API 요청
- */
 
 @Getter
 @Setter

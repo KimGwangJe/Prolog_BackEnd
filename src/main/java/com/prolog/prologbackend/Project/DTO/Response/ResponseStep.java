@@ -7,12 +7,6 @@ import lombok.Setter;
 
 import java.util.Date;
 
-/**
- * Author : Kim
- * Date : 2024-02-17
- * Description : 프로젝트의 단계 정보입니다.
- * 프론트에서 받을때는 stepId 없음
- */
 
 @Getter
 @Setter

@@ -4,11 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Author : Kim
- * Date : 2024-02-18
- * Description : project에 사용되는 stack 들이 저장되어있습니다.
- */
 
 @Entity
 @Table(name = "project_stack")

@@ -6,12 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-/**
- * Author : Kim
- * Date : 2024-02-17
- * Description : 프로젝트에 사용되는 스택입니다.
- */
-
 @Getter
 @Setter
 public class ResponseStack {
