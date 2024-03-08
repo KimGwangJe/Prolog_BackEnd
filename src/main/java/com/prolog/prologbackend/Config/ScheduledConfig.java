@@ -25,7 +25,7 @@ public class ScheduledConfig {
     @Value("${S3Bucket}")
     private String bucket;
 
-    @Scheduled(cron = "0 54 13 * * ?") // 매일 새벽 12시에 실행
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 새벽 12시에 실행
     @Transactional(rollbackFor = Exception.class)
     public void imageDelete() {
         LocalDate today = LocalDate.now();
