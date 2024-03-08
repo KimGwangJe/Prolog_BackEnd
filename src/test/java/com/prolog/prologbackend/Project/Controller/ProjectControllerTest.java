@@ -2,6 +2,8 @@ package com.prolog.prologbackend.Project.Controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prolog.prologbackend.Member.Domain.Member;
+import com.prolog.prologbackend.Member.Domain.MemberStatus;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Request.RequestStep;
 import com.prolog.prologbackend.Project.Service.ProjectService;
@@ -42,9 +44,6 @@ class ProjectControllerTest {
     @MockBean
     ProjectService projectService;
 
-    @MockBean
-    JwtProvider jwtProvider;
-
 
     @Test
     @DisplayName("프로젝트 정보 Get")
@@ -57,7 +56,7 @@ class ProjectControllerTest {
         Long invalidProjectId = null; // 유효하지 않은 프로젝트 ID (null)
 
         // when & then
-        mvc.perform(get("/project/info")
+        mvc.perform(get("/project")
                         .with(csrf())
                         .param("projectId", invalidProjectId != null ? invalidProjectId.toString() : ""))
                 .andExpect(status().isBadRequest());
@@ -70,7 +69,7 @@ class ProjectControllerTest {
         Long projectId = 1L;
 
         // when & then
-        mvc.perform(get("/project/info")
+        mvc.perform(get("/project")
                         .with(csrf())
                         .param("projectId", projectId.toString()))
                 .andExpect(status().isOk());
@@ -86,7 +85,7 @@ class ProjectControllerTest {
         /**
          * 실패 - null 포함
          */
-        mvc.perform(put("/api/project/update")
+        mvc.perform(put("/api/project")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestProjectDetailDTO)))
@@ -98,7 +97,7 @@ class ProjectControllerTest {
         /**
          * 성공
          */
-        mvc.perform(put("/api/project/update")
+        mvc.perform(put("/api/project")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestProjectDetailDTO)))
@@ -107,18 +106,29 @@ class ProjectControllerTest {
 
     @Test
     @DisplayName("프로젝트 리스트 반환")
-    @WithMockUser(username = "테스트_최고관리자", roles = {"SUPER"})
+    @WithMockUser(username = "test@test.com", roles = "Leader") // 혹은 "ADMIN" 권한으로 테스트
     void 프로젝트_리스트_반환() throws Exception {
 
         // given
-        String validEmail = "valid@test.com";
-        String validToken = jwtProvider.createToken(JwtType.ACCESS_TOKEN, validEmail); // 유효한 토큰
+        Member member = Member.builder()
+                .status(MemberStatus.valueOf("VERIFIED"))
+                .phone("01011112222")
+                .email("test1234@naver.com")
+                .roles("Leader")
+                .profileImage("a")
+                .password("a")
+                .nickname("a")
+                .isDeleted(false)
+                .profileName("a")
+                .build() ;
+
         // when & then
-        mvc.perform(get("/project/list")
+        mvc.perform(get("/api/project/list")
                         .with(csrf())
-                        .header("Authorization", "Bearer " + validToken))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(member)))
                 .andExpect(status().isNoContent())
-                .andExpect(jsonPath("$.projectList").doesNotExist()); // 프로젝트 리스트가 없음을 확인합니다.
+                .andExpect(jsonPath("$.projectList").doesNotExist());
     }
 
 
@@ -134,7 +144,7 @@ class ProjectControllerTest {
          * 실패 - null 포함
          */
         requestProjectDetailDTO.setProjectName("");
-        mvc.perform(post("/api/project/insert")
+        mvc.perform(post("/api/project")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestProjectDetailDTO)))
@@ -145,7 +155,7 @@ class ProjectControllerTest {
         /**
          * 성공
          */
-        mvc.perform(post("/api/project/insert")
+        mvc.perform(post("/api/project")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestProjectDetailDTO)))

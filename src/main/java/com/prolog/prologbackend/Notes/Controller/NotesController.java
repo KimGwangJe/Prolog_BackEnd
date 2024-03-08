@@ -51,7 +51,7 @@ public class NotesController {
     }
 
     @Operation(summary = "프로젝트에서 사용자가 작성한 일지를 반환합니다.")
-    @GetMapping("/notes/info")
+    @GetMapping("/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success" ,
                     content = @Content(schema = @Schema(implementation = ResponseNotesListDTO.class)))
@@ -65,7 +65,7 @@ public class NotesController {
     }
 
     @Operation(summary = "일지를 저장하고 저장된 일지의 id를 반환합니다.")
-    @PostMapping("/api/notes/insert")
+    @PostMapping("/api/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -83,7 +83,7 @@ public class NotesController {
     }
 
     @Operation(summary = "수정된 일지 정보를 받아 저장합니다.")
-    @PutMapping("/notes/update") // + /api
+    @PutMapping("/api/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -101,7 +101,7 @@ public class NotesController {
     }
 
     @Operation(summary = "해당 일지를 삭제하고 status 코드를 전송합니다.")
-    @DeleteMapping("/api/notes/delete")
+    @DeleteMapping("/api/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "400", description = "Bad Request")

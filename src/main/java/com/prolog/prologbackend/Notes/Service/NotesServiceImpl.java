@@ -29,6 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -80,12 +82,12 @@ public class NotesServiceImpl implements NotesService {
         Notes notes = makeNotesEntity(requestNotesDTO,teamMember);
 
         try{
-            notesRepository.save(notes);
+            Notes createdNotes = notesRepository.save(notes);
+            linkImagesToNotes(createdNotes.getContent(),createdNotes);
+            return createdNotes.getNotesId();
         } catch(Exception e){
             throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
         }
-
-        return notes.getNotesId();
     }
 
     @Override
@@ -99,14 +101,16 @@ public class NotesServiceImpl implements NotesService {
 
         Notes updateNotes = makeNotesEntity(requestNotesDTO,teamMember);
 
-        try{
-            if(requestNotesDTO.getMemberId() == notes.getTeamMember().getMember().getId()){
+
+        if(requestNotesDTO.getMemberId() == notes.getTeamMember().getMember().getId()){
+            try{
                 notesRepository.save(updateNotes);
-            } else{
-                throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
+                linkImagesToNotes(updateNotes.getContent(),updateNotes);
+            } catch (Exception e){
+                throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
             }
-        } catch(Exception e){
-            throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
+        } else{
+            throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
         }
     }
 
@@ -115,14 +119,14 @@ public class NotesServiceImpl implements NotesService {
     public void deleteNotes(Long notesId, Long teamMemberId) {
         Notes notes = notesRepository.findById(notesId).orElseThrow(() ->
                 new BusinessLogicException(NotesExceptionType.NOTES_NOT_FOUND));
-        try{
-            if(teamMemberId == notes.getTeamMember().getId()){
+        if(teamMemberId == notes.getTeamMember().getId()){
+            try{
                 notesRepository.delete(notes);
-            } else{
-                throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
+            } catch(Exception e){
+                throw new BusinessLogicException(NotesExceptionType.NOTES_DELETE_ERROR);
             }
-        } catch(Exception e){
-            throw new BusinessLogicException(NotesExceptionType.NOTES_DELETE_ERROR);
+        } else{
+            throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
         }
     }
 
@@ -163,6 +167,42 @@ public class NotesServiceImpl implements NotesService {
             return url;
         } catch (IOException e) {
             throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
+        }
+    }
+
+    // HTML에서 이미지 src를 추출하여서 관계 맺어주는거
+    public void linkImagesToNotes(String html, Notes notes){
+        List<String> srcList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>");
+        Matcher matcher = pattern.matcher(html);
+        while (matcher.find()) {
+            srcList.add(matcher.group(1)); // 이미지 src 속성 값 추출
+        }
+
+        // 이미 노트와 관련된 이미지들 가져오기
+        List<Image> relatedImages = imageRepository.findByNotes(notes);
+
+        // HTML에 있는 이미지와 이미 노트와 관련된 이미지들을 비교하여 관계 맺기
+        for (String src : srcList) {
+            Image image = imageRepository.findByImageUrl(src);
+            if (image != null && relatedImages.contains(image)) {
+                // 이미 노트와 관련된 이미지이면서 HTML에도 있는 경우, 관계 유지
+                continue;
+            }
+            // 이미 노트와 관련된 이미지가 아니거나 HTML에 없는 경우, 새로운 이미지 생성 및 관계 맺기
+            imageRepository.save(Image.builder()
+                    .imageId(image.getImageId())
+                    .imageUrl(image.getImageUrl())
+                    .imageName(image.getImageName())
+                    .notes(notes)
+                    .build());
+        }
+
+        // HTML에는 없지만 이미 노트와 관련된 이미지들을 찾아서 끊기
+        for (Image image : relatedImages) {
+            if (!srcList.contains(image.getImageUrl())) {
+                imageRepository.unlinkImages(image.getImageId());
+            }
         }
     }
 

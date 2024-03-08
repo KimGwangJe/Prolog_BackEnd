@@ -122,8 +122,10 @@ class NotesServiceImplTest {
     @DisplayName("일지 수정")
     void 일지_수정() {
         Notes mockNotes = makeNotes();
+        TeamMember mockTeamMember = mockNotes.getTeamMember();
 
         Mockito.when(notesRepository.findById(anyLong())).thenReturn(Optional.ofNullable(mockNotes));
+        Mockito.when(teamMemberRepository.findById(anyLong())).thenReturn(Optional.ofNullable(mockTeamMember));
 
         RequestNotesDTO requestNotesDTO = new RequestNotesDTO();
         requestNotesDTO.setNotesId(1L);
@@ -142,13 +144,13 @@ class NotesServiceImplTest {
     @DisplayName("일지 삭제")
     void 일지_삭제() {
         Long notesId = 1L;
-        Long memberId = 1L;
+        Long teamMemberId = 1L;
         Notes mockNotes = makeNotes();
 
         lenient().when(notesRepository.findById(anyLong())).thenReturn(Optional.ofNullable(mockNotes));
         lenient().doNothing().when(notesRepository).delete(any(Notes.class));
 
-        assertDoesNotThrow(() -> notesService.deleteNotes(notesId,memberId));
+        assertDoesNotThrow(() -> notesService.deleteNotes(notesId,teamMemberId));
     }
 
     public Notes makeNotes(){
