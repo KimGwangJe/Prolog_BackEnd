@@ -1,26 +1,29 @@
 package com.prolog.prologbackend.Member.Controller;
 
 import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
-import com.prolog.prologbackend.Member.Service.MemberService;
+import com.prolog.prologbackend.Member.Service.MemberJoinService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.CREATED;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/members")
 @RequiredArgsConstructor
 public class AnyMemberController {
-    private final MemberService memberService;
+    private final MemberJoinService memberJoinService;
 
-    @PostMapping
+    @PostMapping("/signup")
     ResponseEntity joinMember(@Valid @RequestBody MemberJoinDto joinDto){
-        memberService.joinMember(joinDto);
-        return ResponseEntity.status(CREATED).build();
+        memberJoinService.joinMember(joinDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/oauth/kakao/login")
+    ResponseEntity socialLoginMember(@RequestParam String code){
+        Map tokens = memberJoinService.loginToKaKao(code);
+        return ResponseEntity.status(HttpStatus.CREATED).body(tokens);
     }
 }

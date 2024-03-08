@@ -3,9 +3,7 @@ package com.prolog.prologbackend.Member.Service;
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.DTO.Request.MemberUpdateDto;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
-import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
 import com.prolog.prologbackend.Member.Domain.Member;
-import com.prolog.prologbackend.Member.Domain.MemberStatus;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
@@ -22,23 +20,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final TeamMemberService teamMemberService;
 
-    @Transactional
-     public void joinMember(MemberJoinDto joinDto){
-        memberRepository.findByEmail(joinDto.getEmail())
-                .ifPresent(m -> {throw new BusinessLogicException(MemberExceptionType.MEMBER_CONFLICT);});
-        Member newMember = Member.builder()
-                        .email(joinDto.getEmail())
-                .password(passwordEncoder.encode(joinDto.getPassword()))
-                .phone(joinDto.getPhone())
-                .nickname(joinDto.getNickname())
-                .isDeleted(false)
-                .status(MemberStatus.UNVERIFIED)
-                .profileImage("profileImageUrl")
-                .profileName("basicProfileImage")
-                .roles("ROLE_USER")
-                .build();
-        memberRepository.save(newMember);
-    }
 
     /**
      * 회원 정보 수정

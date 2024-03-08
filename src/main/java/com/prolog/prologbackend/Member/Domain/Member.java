@@ -19,25 +19,29 @@ public class Member extends BaseTimeEntity{
     private Long id;
     private String email;
     private String password;
+    private Long socialId;
     private String nickname;
     private String phone;
     private String profileImage;
     private String profileName;
     private boolean isDeleted;
+    private boolean isVerified;
     @Enumerated(value= EnumType.STRING)
     private MemberStatus status;
     private String roles;
 
     @Builder
-    Member(String email, String password, String nickname, String phone, String profileImage,
-                      String profileName, boolean isDeleted, MemberStatus status, String roles){
+    Member(String email, String password, Long socialId, String nickname, String phone, String profileImage,
+                      String profileName, boolean isDeleted, boolean isVerified, MemberStatus status, String roles){
         this.email = email;
         this.password = password;
+        this.socialId = socialId;
         this.nickname = nickname;
         this.phone = phone;
         this.profileImage = profileImage;
         this.profileName = profileName;
         this.isDeleted = isDeleted;
+        this.isVerified = isVerified;
         this.status = status;
         this.roles = roles;
     }
@@ -66,5 +70,15 @@ public class Member extends BaseTimeEntity{
     public void updateNickname(String nickname){
         if(!this.nickname.equals(nickname))
             this.nickname = nickname;
+    }
+
+    public void joinToBasic(String password, String phone) {
+        this.password = password;
+        this.phone = phone;
+        this.status = MemberStatus.BOTH;
+    }
+    public void joinToSocial(Long socialId) {
+        this.socialId = socialId;
+        this.status = MemberStatus.BOTH;
     }
 }
