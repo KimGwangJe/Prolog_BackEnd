@@ -60,13 +60,13 @@ class NotesControllerTest {
     @WithMockUser(username = "테스트_최고관리자", roles = {"SUPER"})
     void 일지_정보_GET() throws Exception {
         Long invalidNotesId = null;
-        mvc.perform(get("/notes/info")
+        mvc.perform(get("/notes")
                         .with(csrf())
                         .param("notesId", invalidNotesId != null ? invalidNotesId.toString() : ""))
                 .andExpect(status().isBadRequest());
 
         Long validNotesId = 1L;
-        mvc.perform(get("/notes/info")
+        mvc.perform(get("/notes")
                         .with(csrf())
                         .param("notesId", validNotesId != null ? validNotesId.toString() : ""))
                 .andExpect(status().isOk());
@@ -83,14 +83,14 @@ class NotesControllerTest {
         requestNotesDTO.setContent("aa");
         requestNotesDTO.setType(NotesType.valueOf("Blog"));
 
-        mvc.perform(post("/api/notes/insert")
+        mvc.perform(post("/api/notes")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestNotesDTO)))
                 .andExpect(status().isBadRequest());
 
         requestNotesDTO.setTitle("a");
-        mvc.perform(post("/api/notes/insert")
+        mvc.perform(post("/api/notes")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestNotesDTO)))
@@ -109,7 +109,7 @@ class NotesControllerTest {
         requestNotesDTO.setContent("aa");
         requestNotesDTO.setType(NotesType.valueOf("Blog"));
 
-        mvc.perform(put("/api/notes/update")
+        mvc.perform(put("/api/notes")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestNotesDTO)))
@@ -121,7 +121,7 @@ class NotesControllerTest {
         /**
          * 성공
          */
-        mvc.perform(put("/api/notes/update")
+        mvc.perform(put("/api/notes")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(requestNotesDTO)))
@@ -134,14 +134,14 @@ class NotesControllerTest {
     void 일지_삭제() throws Exception{
         Long invalidNotesId = null;
 
-        mvc.perform(delete("/api/notes/delete")
+        mvc.perform(delete("/api/notes")
                         .with(csrf())
                         .param("notesId", invalidNotesId != null ? invalidNotesId.toString() : ""))
                 .andExpect(status().isBadRequest());
 
         Long validNotesId = 1L;
         Long validTeamMemberId = 1L;
-        mvc.perform(delete("/api/notes/delete")
+        mvc.perform(delete("/api/notes")
                         .with(csrf())
                         .param("notesId", validNotesId != null ? validNotesId.toString() : "")
                         .param("teamMemberId", validTeamMemberId != null ? validTeamMemberId.toString() : ""))

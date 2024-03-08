@@ -32,10 +32,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ProjectController {
     private final ProjectService projectService;
-    private final JwtProvider jwtProvider;
 
     @Operation(summary = "특정 프로젝트의 상세 정보를 가져옵니다.")
-    @GetMapping("/project/info")
+    @GetMapping("/project")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success" ,
                     content = @Content(schema = @Schema(implementation = ResponseProjectDetailDTO.class))),
@@ -52,7 +51,7 @@ public class ProjectController {
 
 
     @Operation(summary = "특정 프로젝트의 정보를 수정합니다.")
-    @PutMapping("/api/project/update")
+    @PutMapping("/api/project")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -66,6 +65,7 @@ public class ProjectController {
         if (bindingResult.hasErrors() || requestProjectDetailDTO.getProjectId() == null) {
             throw new BusinessLogicException(ProjectExceptionType.INVALID_INPUT_VALUE);
         }
+
         projectService.projectUpdate(requestProjectDetailDTO,member.getId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -94,7 +94,7 @@ public class ProjectController {
 
 
     @Operation(summary = "프로젝트를 생성하고 생성된 프로젝트의 ProjectID를 반환합니다.")
-    @PostMapping("/api/project/insert")
+    @PostMapping("/api/project")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Success"),
             @ApiResponse(responseCode = "400", description = "Bad request"),

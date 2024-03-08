@@ -19,9 +19,7 @@ public class InvitationEmailService {
     private final TemplateEngine templateEngine;
 
     @Async
-    public boolean sendMail(InvitationEmailDTO emailDTO) throws Exception {
-        boolean msg = false;
-
+    public void sendMail(InvitationEmailDTO emailDTO) throws Exception {
         Context context = new Context();
         context.setVariable("nickname", emailDTO.getNickname());
         context.setVariable("message", "초대를 승락하기 위해서는 링크를 눌러주세요."); //이부분은 저희가 틀을 잡아서 보내는게 나을것 같습니다.
@@ -40,10 +38,8 @@ public class InvitationEmailService {
 
         try {
             javaMailSender.send(mail);
-            msg = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return msg;
     }
 }
