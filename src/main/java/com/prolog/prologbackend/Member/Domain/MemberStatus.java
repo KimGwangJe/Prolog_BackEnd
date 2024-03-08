@@ -1,15 +1,20 @@
 package com.prolog.prologbackend.Member.Domain;
 
 public enum MemberStatus {
-    VERIFIED(true), UNVERIFIED(false);
+    BASIC(true,false),
+    SOCIAL(false,true),
+    BOTH(true,true);
 
-    private boolean statusValue;
+    private boolean basicMember;
+    private boolean socialMember;
 
-    MemberStatus(boolean statusValue){
-        this.statusValue = statusValue;
+    MemberStatus(boolean basicMember, boolean socialMember){
+        this.basicMember = basicMember;
+        this.socialMember = socialMember;
     }
 
-    public boolean isStatusValue(){
-        return statusValue;
+    public boolean isBasicMember(){
+        return basicMember;
     }
+    public boolean isSocialMember() {return socialMember;}
 }
