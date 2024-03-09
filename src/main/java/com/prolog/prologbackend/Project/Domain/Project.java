@@ -1,11 +1,13 @@
 package com.prolog.prologbackend.Project.Domain;
 
+import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "project")
@@ -41,6 +43,12 @@ public class Project {
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<ProjectStep> projectSteps;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<TeamMember> teamMembers;
 
     public boolean getIsDeleted(){
         return isDeleted;

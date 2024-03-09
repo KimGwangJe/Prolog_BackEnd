@@ -70,7 +70,7 @@ public class NotesController {
             @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<Void> createNotes(
+    public ResponseEntity<Long> createNotes(
             @Parameter(name = "requestNotesDTO", description = "일지의 내용이 들어갑니다.", required = true)
             @Valid @RequestBody RequestNotesDTO requestNotesDTO,
             BindingResult bindingResult
@@ -78,8 +78,7 @@ public class NotesController {
         if(bindingResult.hasErrors() || requestNotesDTO.getDate() == null){
             throw new BusinessLogicException(NotesExceptionType.INVALID_INPUT_VALUE);
         }
-        notesService.createNotes(requestNotesDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(notesService.createNotes(requestNotesDTO));
     }
 
     @Operation(summary = "수정된 일지 정보를 받아 저장합니다.")

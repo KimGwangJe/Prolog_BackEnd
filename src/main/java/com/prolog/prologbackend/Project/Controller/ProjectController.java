@@ -7,8 +7,6 @@ import com.prolog.prologbackend.Project.DTO.Response.ProjectListResponseDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ResponseProjectDetailDTO;
 import com.prolog.prologbackend.Project.ExceptionType.ProjectExceptionType;
 import com.prolog.prologbackend.Project.Service.ProjectService;
-import com.prolog.prologbackend.Security.Jwt.JwtProvider;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,7 +69,7 @@ public class ProjectController {
 
 
     @Operation(summary = "사용자가 포함된 프로젝트 리스트를 반환합니다.")
-    @GetMapping("/api/project/list")
+    @GetMapping("/project/list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success" ,
                     content = @Content(schema = @Schema(implementation = ProjectListResponseDTO.class))),
@@ -81,9 +78,10 @@ public class ProjectController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
     })
     public ResponseEntity<ProjectListResponseDTO> getProjectList(
-            @AuthenticationPrincipal Member member
+            @Parameter(name = "memberId", description = "멤버를 구분하는 ID.", required = true)
+            @RequestParam(name = "memberId", required = false) Long memberId
     ){
-        ProjectListResponseDTO projectList = projectService.getProjectList(member.getId());
+        ProjectListResponseDTO projectList = projectService.getProjectList(memberId);
 
         if (projectList == null || projectList.getProjectList().isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(projectList);

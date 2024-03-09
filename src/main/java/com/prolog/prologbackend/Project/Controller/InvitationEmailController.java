@@ -20,7 +20,7 @@ import javax.validation.Valid;
 public class InvitationEmailController {
     private final InvitationEmailService emailService;
 
-    @PostMapping("/api/invitation/email")
+    @PostMapping("/invitation/email") // + /api
     public ResponseEntity<Void> emailSend(
             @Parameter(name = "emailDTO", description = "초대 이메일 전송을 위한 데이터를 받습니다.", required = true)
             @Valid @RequestBody InvitationEmailDTO emailDTO){

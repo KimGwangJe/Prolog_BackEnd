@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @Entity
@@ -40,9 +42,12 @@ public class Notes {
     @Column(name = "content")
     private String content;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "team_member_id")
     private TeamMember teamMember;
+
+    @OneToMany(mappedBy = "notes", cascade = CascadeType.ALL)
+    private List<Image> images = new ArrayList<>();
 
     @Builder
     public Notes(

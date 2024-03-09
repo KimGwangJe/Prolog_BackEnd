@@ -123,7 +123,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
         try{
             project = projectRepository.save(project);
-
             // 단계 저장
             updateSteps(projectDetailDTO.getStep(),project);
 

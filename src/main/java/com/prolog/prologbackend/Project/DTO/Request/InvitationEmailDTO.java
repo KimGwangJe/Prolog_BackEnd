@@ -1,11 +1,15 @@
 package com.prolog.prologbackend.Project.DTO.Request;
 
+import com.prolog.prologbackend.TeamMember.Domain.Part;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 
 @Getter
@@ -32,4 +36,8 @@ public class InvitationEmailDTO {
     @Min(1)
     @Schema(description = "초대된 프로젝트 번호", nullable = false, example = "1")
     private String projectId;
+
+    @NotEmpty
+    @Schema(description = "초대된 팀멤버의 역할 구분", nullable = false, example = "[Leader,Backend]")
+    private List<Part> partList;
 }
