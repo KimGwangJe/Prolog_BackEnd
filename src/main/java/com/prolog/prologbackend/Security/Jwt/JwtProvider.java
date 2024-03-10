@@ -34,7 +34,7 @@ public class JwtProvider {
                 .setExpiration(expirationTime)
                 .compact();
         if(jwtType.equals(JwtType.REFRESH_TOKEN)){
-            redisRepository.save(newToken, email, expirationTime.getTime());
+            redisRepository.saveRefresh(newToken, email, jwtType.getExpirationTime());
         }
         return newToken;
     }
@@ -68,5 +68,10 @@ public class JwtProvider {
         if(!token.equals(redisToken)){
             throw new BusinessLogicException(SecurityExceptionType.UNAUTHORIZED);
         }
+    }
+
+    public void verifyWithAccessToken(String token){
+        if(redisRepository.findByToken(token))
+            throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
     }
 }
