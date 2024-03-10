@@ -39,7 +39,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             try {
                 String token = jwtProvider.substringToken(request.getHeader("Token"));
                 Claims claims = jwtProvider.parseToken(token);
-
                 String email = jwtProvider.getEmail(claims);
 
                 if (request.getServletPath().equals("/api/member/token")) {
@@ -54,6 +53,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     response.setStatus(HttpStatus.CREATED.value());
                 } else {
                     jwtProvider.verifyType(JwtType.ACCESS_TOKEN, claims);
+                    jwtProvider.verifyWithAccessToken(token);
 
                     CustomUserDetails userDetails = userDetailsService.loadUserByUsername(email);
                     Authentication authResult = new UsernamePasswordAuthenticationToken(userDetails.getMember(), null, userDetails.getAuthorities());
