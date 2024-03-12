@@ -24,21 +24,21 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Objects;
 
-@Tag(name = "Project Info API", description = "프로젝트 관련 API문서입니다.")
+@Tag(name = "프로젝트 관련 API", description = "프로젝트 관련 API문서입니다.")
 @RestController
 @RequiredArgsConstructor
 public class ProjectController {
     private final ProjectService projectService;
 
-    @Operation(summary = "특정 프로젝트의 상세 정보를 가져옵니다.")
     @GetMapping("/project")
+    @Operation(summary = "특정 프로젝트의 상세 정보를 가져옵니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success" ,
-                    content = @Content(schema = @Schema(implementation = ResponseProjectDetailDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "200", description = "Success" ),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<ResponseProjectDetailDTO> getProject(
-            @Parameter(name = "프로젝트 ID", description = "프로젝트 구분 번호입니다.", example = "1", required = true)
+            @Parameter(name = "projectId", description = "프로젝트 구분 번호입니다.", example = "1", required = true)
             @RequestParam(name = "projectId", required = false) Long projectId
     ){
         if(Objects.isNull(projectId)) throw new BusinessLogicException(ProjectExceptionType.INVALID_INPUT_VALUE);
@@ -51,11 +51,12 @@ public class ProjectController {
     @PutMapping("/api/project")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> projectUpdate(
             @AuthenticationPrincipal Member member,
-            @Parameter(name = "프로젝트 정보", description = "수정된 프로젝트의 정보가 들어있습니다.", required = true)
+            @Parameter(name = "requestProjectDetailDTO", description = "수정된 프로젝트의 정보가 들어있습니다.", required = true)
             @Valid @RequestBody RequestProjectDetailDTO requestProjectDetailDTO,
             BindingResult bindingResult
     ){
@@ -71,11 +72,10 @@ public class ProjectController {
     @Operation(summary = "사용자가 포함된 프로젝트 리스트를 반환합니다.")
     @GetMapping("/project/list")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success" ,
-                    content = @Content(schema = @Schema(implementation = ProjectListResponseDTO.class))),
-            @ApiResponse(responseCode = "204", description = "No Content" ,
-                    content = @Content(schema = @Schema(implementation = ProjectListResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<ProjectListResponseDTO> getProjectList(
             @Parameter(name = "memberId", description = "멤버를 구분하는 ID.", required = true)
@@ -94,11 +94,12 @@ public class ProjectController {
     @Operation(summary = "프로젝트를 생성하고 생성된 프로젝트의 ProjectID를 반환합니다.")
     @PostMapping("/api/project")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Success"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "201", description = "Success Create"),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Long> createProject(
-            @Parameter(name = "프로젝트 데이터", description = "프로젝트의 세부 데이터입니다.", required = true)
+            @Parameter(name = "projectDetailDTO", description = "프로젝트의 세부 데이터입니다.", required = true)
             @Valid @RequestBody RequestProjectDetailDTO projectDetailDTO,
             BindingResult bindingResult
     ){
@@ -113,11 +114,12 @@ public class ProjectController {
     @PutMapping("/api/project/delete")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> deleteProject(
             @AuthenticationPrincipal Member member,
-            @Parameter(name = "ProjectId", description = "프로젝트를 구분하는 ID.", required = true)
+            @Parameter(name = "projectId", description = "프로젝트를 구분하는 ID.", required = true)
             @RequestParam(name = "projectId", required = false) Long projectId
     ){
         if(Objects.isNull(projectId) || Objects.isNull(member.getId())){

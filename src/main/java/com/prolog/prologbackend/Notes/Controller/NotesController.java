@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ import java.net.URL;
 import java.util.Objects;
 
 
-@Tag(name = "Project Notes API", description = "일지 관련 API입니다")
+@Tag(name = "일지 관련 API", description = "일지 관련 API입니다")
 @RestController
 @RequiredArgsConstructor
 public class NotesController {
@@ -36,28 +37,35 @@ public class NotesController {
     @Operation(summary = "프로젝트에서 사용자가 작성한 일지 리스트를 반환합니다.")
     @GetMapping("/notes/list")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success" ,
-                    content = @Content(schema = @Schema(implementation = ResponseNotesListDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
+
     })
     public ResponseEntity<ResponseNotesListDTO> getNotesList(
-            @Parameter(name = "팀멤버ID", description = "팀멤버 구분 번호입니다.", example = "1", required = true)
+            @Parameter(name = "teamMemberId", description = "팀멤버 구분 번호입니다.", example = "1", required = true)
             @RequestParam(name = "teamMemberId", required = false) Long teamMemberId
     ) {
         if(Objects.isNull(teamMemberId)){
             throw new BusinessLogicException(NotesExceptionType.INVALID_INPUT_VALUE);
         }
         ResponseNotesListDTO notesList = notesService.getNotesList(teamMemberId);
+        if(notesList.getNotesList().isEmpty() || notesList.getNotesList() == null){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(notesList);
     }
 
     @Operation(summary = "프로젝트에서 사용자가 작성한 일지를 반환합니다.")
     @GetMapping("/notes")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success" ,
-                    content = @Content(schema = @Schema(implementation = ResponseNotesListDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<ResponseNotesDTO> getNotes(
-            @Parameter(name = "일지 ID", description = "일지 구분 번호입니다.", example = "1", required = true)
+            @Parameter(name = "notesId", description = "일지 구분 번호입니다.", example = "1", required = true)
             @RequestParam(name = "notesId", required = false) Long notesId
     ){
         if(Objects.isNull(notesId)) throw new BusinessLogicException(NotesExceptionType.INVALID_INPUT_VALUE);
@@ -68,7 +76,8 @@ public class NotesController {
     @PostMapping("/api/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Long> createNotes(
             @Parameter(name = "requestNotesDTO", description = "일지의 내용이 들어갑니다.", required = true)
@@ -85,7 +94,8 @@ public class NotesController {
     @PutMapping("/api/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> updateNotes(
             @Parameter(name = "requestNotesDTO", description = "일지의 수정된 내용이 들어갑니다.", required = true)
@@ -103,12 +113,13 @@ public class NotesController {
     @DeleteMapping("/api/notes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<Void> deleteNotes(
-            @Parameter(name = "일지 ID", description = "일지 구분 번호입니다.", example = "1", required = true)
+            @Parameter(name = "notesId", description = "일지 구분 번호입니다.", example = "1", required = true)
             @RequestParam(name = "notesId", required = false) Long notesId,
-            @Parameter(name = "팀 멤버 ID", description = "팀 멤버의 구분 번호입니다.", example = "1", required = true)
+            @Parameter(name = "teamMemberId", description = "팀 멤버의 구분 번호입니다.", example = "1", required = true)
             @RequestParam(name = "teamMemberId", required = false) Long teamMemberId
     ){
         if(Objects.isNull(notesId) || Objects.isNull(teamMemberId)) {
@@ -119,13 +130,15 @@ public class NotesController {
     }
 
     @Operation(summary = "일지에 사용되는 이미지를 S3에 저장하고 이미지의 url을 전달해줍니다.")
-    @PostMapping("/api/notes/image")
+    @PostMapping(value = "/api/notes/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
+            @ApiResponse(responseCode = "201", description = "Created",
+                    content = @Content(schema = @Schema(implementation = Void.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<URL> saveNotesImage(
-            @Parameter(name = "file", description = "이미지를 받습니다.", required = true)
+            @Parameter(description = "multipart/form-data 형식의 이미지 리스트를 input으로 받습니다. 이때 key 값은 file 입니다.")
             @RequestPart(value = "file") MultipartFile file
     ) throws IOException {
         if(file.isEmpty()) throw new BusinessLogicException(ImageExceptionType.NOTES_NOT_FOUND);

@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class ResponseNotesListDTO {
 
-    @Schema(description = "프로젝트 팀멤버의 일지를 담은 리스트입니다.", nullable = true, example = "notesList:[]")
+    @Schema(description = "프로젝트 팀멤버의 일지를 담은 리스트입니다.", nullable = true,
+            example = "200 -> 리스트로 된 ResponseNotesDTO, 204 -> 빈 리스트 반환")
     private List<ResponseNotesDTO> notesList;
 }

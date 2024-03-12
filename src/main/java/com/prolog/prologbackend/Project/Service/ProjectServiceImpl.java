@@ -258,7 +258,7 @@ public class ProjectServiceImpl implements ProjectService {
                     ResponseStack responseStack = new ResponseStack();
                     responseStack.setStackID(stack.getStackId());
                     responseStack.setStackName(stack.getStackName());
-                    responseStack.setImage(stack.getImage());
+                    responseStack.setStackImageLink(stack.getImage());
                     return responseStack;
                 })
                 .collect(Collectors.toList());
