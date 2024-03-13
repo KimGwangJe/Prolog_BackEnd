@@ -23,4 +23,9 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     @Query("SELECT i FROM Image i WHERE i.notes IS NULL AND (i.imageName NOT LIKE CONCAT(:todayFormatted, '%') AND i.imageName NOT LIKE CONCAT(:yesterdayFormatted, '%'))")
     List<Image> findByNotesIsNullAndImageNameNotStartingWith(@Param(value = "todayFormatted") String todayFormatted, @Param(value = "yesterdayFormatted") String yesterdayFormatted);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Image i WHERE i.notes IN (SELECT n FROM Notes n WHERE n.teamMember.id IN :teamMemberIds)")
+    void deleteImagesByTeamMemberIds(List<Long> teamMemberIds);
 }
