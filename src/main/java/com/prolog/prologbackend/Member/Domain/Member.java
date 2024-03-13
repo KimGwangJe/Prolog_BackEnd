@@ -17,17 +17,25 @@ public class Member extends BaseTimeEntity{
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name= "member_id")
     private Long id;
+    @Column(nullable = false)
     private String email;
     private String password;
     private Long socialId;
+    @Column(nullable = false)
     private String nickname;
     private String phone;
+    @Column(nullable = false)
     private String profileImage;
+    @Column(nullable = false)
     private String profileName;
+    @Column(nullable = false)
     private boolean isDeleted;
+    @Column(nullable = false)
     private boolean isVerified;
+    @Column(nullable = false)
     @Enumerated(value= EnumType.STRING)
     private MemberStatus status;
+    @Column(nullable = false)
     private String roles;
 
     @Builder
