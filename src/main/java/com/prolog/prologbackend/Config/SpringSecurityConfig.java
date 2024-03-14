@@ -4,6 +4,9 @@ import com.prolog.prologbackend.Security.Authentication.CustomAuthenticationFilt
 import com.prolog.prologbackend.Security.Authorization.CustomAccessDeniedHandler;
 import com.prolog.prologbackend.Security.Authorization.CustomAuthorizationFilter;
 import com.prolog.prologbackend.Security.Jwt.JwtProvider;
+import com.prolog.prologbackend.Security.Logout.CustomLogoutFilter;
+import com.prolog.prologbackend.Security.Logout.CustomLogoutHandler;
+import com.prolog.prologbackend.Security.Logout.CustomLogoutSuccessHandler;
 import com.prolog.prologbackend.Security.UserDetails.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +29,8 @@ public class SpringSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomLogoutHandler customLogoutHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
 
     @Bean
@@ -39,6 +44,7 @@ public class SpringSecurityConfig {
                         authorize.requestMatchers("/api/**").hasRole("USER")
                                 .anyRequest().permitAll())
                 .addFilter(customAuthenticationFilter())
+                .addFilter(customLogoutFilter())
                 .addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling((exceptionHandling) ->
                         exceptionHandling.accessDeniedHandler(customAccessDeniedHandler));
@@ -65,4 +71,13 @@ public class SpringSecurityConfig {
                 new CustomAuthorizationFilter(jwtProvider,customUserDetailsService);
         return customAuthorizationFilter;
     }
+
+    @Bean
+    public CustomLogoutFilter customLogoutFilter() {
+        CustomLogoutFilter customLogoutFilter =
+                new CustomLogoutFilter(customLogoutSuccessHandler, customLogoutHandler, jwtProvider);
+        customLogoutFilter.setFilterProcessesUrl("/members/logout");
+        return customLogoutFilter;
+    }
+
 }
