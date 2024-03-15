@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public interface NotesService {
     public ResponseNotesListDTO getNotesList(Long memberId);
@@ -15,4 +16,5 @@ public interface NotesService {
     public void updateNotes(RequestNotesDTO requestNotesDTO);
     public void deleteNotes(Long notesId,Long teamMemberId);
     public URL saveImage(MultipartFile file) throws IOException;
+    public void deleteImageAndNotes(List<Long> teamMemberIds);
 }

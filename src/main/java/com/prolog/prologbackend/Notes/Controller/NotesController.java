@@ -6,6 +6,8 @@ import com.prolog.prologbackend.Notes.DTO.Response.ResponseNotesDTO;
 import com.prolog.prologbackend.Notes.DTO.Response.ResponseNotesListDTO;
 import com.prolog.prologbackend.Notes.ExceptionType.ImageExceptionType;
 import com.prolog.prologbackend.Notes.ExceptionType.NotesExceptionType;
+import com.prolog.prologbackend.Notes.Repository.ImageRepository;
+import com.prolog.prologbackend.Notes.Repository.NotesRepository;
 import com.prolog.prologbackend.Notes.Service.NotesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 

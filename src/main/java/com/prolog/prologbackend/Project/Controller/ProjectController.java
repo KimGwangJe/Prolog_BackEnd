@@ -5,6 +5,7 @@ import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ProjectListResponseDTO;
 import com.prolog.prologbackend.Project.DTO.Response.ResponseProjectDetailDTO;
+import com.prolog.prologbackend.Project.DTO.Response.ResponseStackImageListDTO;
 import com.prolog.prologbackend.Project.ExceptionType.ProjectExceptionType;
 import com.prolog.prologbackend.Project.Service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -127,5 +128,16 @@ public class ProjectController {
         }
         projectService.deleteProject(projectId,member.getId());
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "사용자가 선택하는 모든 스택의 이름과 링크가 반환됩니다.")
+    @GetMapping("/project/stack-image")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(schema = @Schema(implementation = Void.class)))
+    })
+    public ResponseEntity<ResponseStackImageListDTO> getStackImage(){
+        return ResponseEntity.status(HttpStatus.OK).body(projectService.getStackImage());
     }
 }

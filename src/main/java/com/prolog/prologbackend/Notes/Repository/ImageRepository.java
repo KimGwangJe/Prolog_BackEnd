@@ -28,4 +28,9 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     @Modifying
     @Query("DELETE FROM Image i WHERE i.notes IN (SELECT n FROM Notes n WHERE n.teamMember.id IN :teamMemberIds)")
     void deleteImagesByTeamMemberIds(List<Long> teamMemberIds);
+
+    @Transactional
+    @Modifying
+    @Query("SELECT i FROM Image i WHERE i.notes IN (SELECT n FROM Notes n WHERE n.teamMember.id IN :teamMemberIds)")
+    List<Image> findImagesByTeamMemberIds(List<Long> teamMemberIds);
 }

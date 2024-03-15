@@ -46,9 +46,6 @@ public class Notes {
     @JoinColumn(name = "team_member_id")
     private TeamMember teamMember;
 
-    @OneToMany(mappedBy = "notes", cascade = CascadeType.ALL)
-    private List<Image> images = new ArrayList<>();
-
     @Builder
     public Notes(
             Long notesId, Date date, String title,

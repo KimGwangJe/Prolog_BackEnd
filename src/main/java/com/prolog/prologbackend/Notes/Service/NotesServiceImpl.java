@@ -2,6 +2,7 @@ package com.prolog.prologbackend.Notes.Service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Notes.DTO.NotesType;
@@ -167,6 +168,26 @@ public class NotesServiceImpl implements NotesService {
             return url;
         } catch (IOException e) {
             throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteImageAndNotes(List<Long> teamMemberIds) {
+        try{
+            List<Image> images = imageRepository.findImagesByTeamMemberIds(teamMemberIds);
+
+            for(Image image: images){
+                try {
+                    s3Client.deleteObject(new DeleteObjectRequest(bucket, image.getImageName()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            imageRepository.deleteImagesByTeamMemberIds(teamMemberIds);
+            notesRepository.deleteNotesByTeamMemberIds(teamMemberIds);
+        } catch(Exception e){
+            throw new BusinessLogicException(NotesExceptionType.NOTES_DELETE_ERROR);
         }
     }
 
