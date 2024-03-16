@@ -30,7 +30,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class MemberJoinService {
+public class AnyMemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -120,6 +120,18 @@ public class MemberJoinService {
         tokens.put(JwtType.REFRESH_TOKEN.getTokenType(), "Bearer "+refreshToken);
 
         return tokens;
+    }
+
+    /**
+     * 이메일 중복 확인
+     * : 이메일 수정 시 이미 사용중인 이메일인지 확인하여 수정 가능 여부 반환
+     *
+     * @param email : 중복 확인할 이메일
+     * @return : 자신의 이메일인 경우 false, 변경 가능한 이메일인 경우 true 반환
+     * @throws : 이미 존재하는 이메일의 경우 에러 발생 (409)
+     */
+    public boolean validateEmail(String email){
+        return memberRepository.findByEmail(email).isPresent();
     }
 
     private String getKakaoToken(String code){
