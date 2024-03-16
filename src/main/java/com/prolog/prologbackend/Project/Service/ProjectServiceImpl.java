@@ -5,10 +5,7 @@ import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Request.RequestStep;
-import com.prolog.prologbackend.Project.DTO.Response.ProjectListResponseDTO;
-import com.prolog.prologbackend.Project.DTO.Response.ResponseProjectDetailDTO;
-import com.prolog.prologbackend.Project.DTO.Response.ResponseStack;
-import com.prolog.prologbackend.Project.DTO.Response.ResponseStep;
+import com.prolog.prologbackend.Project.DTO.Response.*;
 import com.prolog.prologbackend.Project.Domain.Project;
 import com.prolog.prologbackend.Project.Domain.ProjectStack;
 import com.prolog.prologbackend.Project.Domain.ProjectStep;
@@ -123,7 +120,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
         try{
             project = projectRepository.save(project);
-
             // 단계 저장
             updateSteps(projectDetailDTO.getStep(),project);
 
@@ -162,6 +158,25 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
             }
         }
+    }
+
+    @Override
+    public ResponseStackImageListDTO getStackImage() {
+        ResponseStackImageListDTO responseStackImageListDTO = new ResponseStackImageListDTO();
+
+        List<ProjectStack> stackImages = projectStackRepository.findAll();
+
+        List<ResponseStackImageListDTO.ResponseStackImageDTO> stackImageDTOList = stackImages.stream().map(stackImage -> {
+            ResponseStackImageListDTO.ResponseStackImageDTO stackImageDTO = new ResponseStackImageListDTO.ResponseStackImageDTO();
+            stackImageDTO.setStackId(stackImage.getStackId());
+            stackImageDTO.setStackName(stackImage.getStackName());
+            stackImageDTO.setImage(stackImage.getImage());
+            return stackImageDTO;
+        }).collect(Collectors.toList());
+
+        responseStackImageListDTO.setStackImageList(stackImageDTOList);
+
+        return responseStackImageListDTO;
     }
 
 
@@ -259,7 +274,7 @@ public class ProjectServiceImpl implements ProjectService {
                     ResponseStack responseStack = new ResponseStack();
                     responseStack.setStackID(stack.getStackId());
                     responseStack.setStackName(stack.getStackName());
-                    responseStack.setImage(stack.getImage());
+                    responseStack.setStackImageLink(stack.getImage());
                     return responseStack;
                 })
                 .collect(Collectors.toList());

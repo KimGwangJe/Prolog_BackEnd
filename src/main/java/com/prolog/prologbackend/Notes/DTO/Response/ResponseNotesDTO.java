@@ -36,10 +36,10 @@ public class ResponseNotesDTO {
     private Date modifiedDate;
 
     @NotNull
-    @Schema(description = "일지 타입입니다.", nullable = false, example = "Blog")
+    @Schema(description = "일지 타입입니다.", nullable = false, example = "Blog 또는 Section")
     private NotesType type;
 
-    @Schema(description = "일지의 내용입니다.", example = "~~~")
+    @Schema(description = "일지의 내용입니다.", example = "HTML")
     private String content;
 
     @Builder

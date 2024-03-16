@@ -19,5 +19,5 @@ public class ResponseStack {
 
     @NotBlank
     @Schema(description = "스택 이미지 링크", nullable = false, example = "www.~~~ 이미지 저장 url")
-    private String image;
+    private String stackImageLink;
 }
