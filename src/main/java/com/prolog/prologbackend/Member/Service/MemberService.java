@@ -58,4 +58,9 @@ public class MemberService {
         LocalDateTime updateDate = LocalDateTime.now();
         memberRepository.updateMemberStatus(updateDate, member.getId());
     }
+
+    public Member getMember(Long memberId){
+        return memberRepository.findById(memberId)
+                .orElseThrow( () -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+    }
 }
