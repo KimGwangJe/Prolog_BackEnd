@@ -59,7 +59,7 @@ public class TeamMemberService {
         if(teamMember.getMember().getId() != member.getId()) {
             String part = teamMemberRepository.findByMemberAndProject(member, teamMember.getProject())
                     .orElseThrow(() -> {
-                        throw new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND);
+                        throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
                     }).getPart();
 
             if (!Arrays.stream(part.split(",")).toList().contains(Part.Leader.toString()))

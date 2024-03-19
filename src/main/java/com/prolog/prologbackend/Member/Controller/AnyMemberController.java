@@ -26,7 +26,7 @@ public class AnyMemberController {
 
     @Operation(summary = "회원 가입 메서드")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Created : 일반 회원가입 성공"),
+            @ApiResponse(responseCode = "201", description = "Created : 일반 회원가입 성공"),
             @ApiResponse(responseCode = "409", description = "Conflict : 이미 존재하는 회원",
                     content = @Content(schema = @Schema(implementation=Void.class)))
     })
@@ -38,7 +38,7 @@ public class AnyMemberController {
 
     @Operation(summary = "카카오 소셜 회원가입 및 로그인 메서드")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Created : 소셜 로그인 성공")
+            @ApiResponse(responseCode = "201", description = "Created : 소셜 로그인 성공")
     })
     @Parameter(name = "인증 코드", description = "카카오 서버 인증에 필요한 코드", example = "kakaoCodeKakaoCode", required = true)
     @PostMapping("/oauth/kakao/login")
