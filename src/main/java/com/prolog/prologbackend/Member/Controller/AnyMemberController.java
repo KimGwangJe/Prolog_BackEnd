@@ -11,7 +11,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,5 +63,19 @@ public class AnyMemberController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         else
             return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/nickname")
+    ResponseEntity validateNickname(@RequestParam @NotBlank @Size(max=20, message="닉네임은 20자 미만으로 작성해야 합니다.") String nickname) {
+        if(anyMemberService.validateNickname(nickname))
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        else
+            return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/search/email")
+    ResponseEntity searchEmail(@RequestParam @NotBlank String nickname, @RequestParam @NotBlank String phone){
+        String email = anyMemberService.findEmail(nickname, phone);
+        return ResponseEntity.status(HttpStatus.OK).body(email);
     }
 }

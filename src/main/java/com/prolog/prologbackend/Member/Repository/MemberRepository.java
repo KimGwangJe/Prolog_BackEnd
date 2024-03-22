@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member,Long> {
     Optional<Member> findByEmail(String email);
+    Optional<Member> findByNickname(String nickname);
     @Modifying
     @Query("update member m set m.isDeleted = true, m.modifiedDate = ?1 where m.id = ?2")
     void updateMemberStatus(LocalDateTime updateDate, Long memberId);

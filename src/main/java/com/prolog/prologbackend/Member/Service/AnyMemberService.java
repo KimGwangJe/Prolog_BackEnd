@@ -124,14 +124,43 @@ public class AnyMemberService {
 
     /**
      * 이메일 중복 확인
-     * : 이메일 수정 시 이미 사용중인 이메일인지 확인하여 수정 가능 여부 반환
+     * : 회원가입 시 이미 사용중인 이메일인지 확인하여 여부 반환
      *
-     * @param email : 중복 확인할 이메일
-     * @return : 자신의 이메일인 경우 false, 변경 가능한 이메일인 경우 true 반환
+     * @param email : 사용 여부를 확인할 이메일
+     * @return : 사용 가능한 이메일인 경우 false, 이미 사용중인 이메일인 경우 true
      * @throws : 이미 존재하는 이메일의 경우 에러 발생 (409)
      */
     public boolean validateEmail(String email){
         return memberRepository.findByEmail(email).isPresent();
+    }
+
+    /**
+     * 닉네임 중복 확인
+     * : 회원가입 및 회원 수정 시 사용 가능한 닉네임인지 확인
+     *
+     * @param nickname : 사용 여부를 확인할 닉네임
+     * @return : 사용 가능한 닉네임인 경우 false, 이미 사용중인 닉네임인 경우 true
+     * @throws : 이미 존재하는 이메일의 경우 에러 발생 (409)
+     */
+    public boolean validateNickname(String nickname){
+        return memberRepository.findByNickname(nickname).isPresent();
+    }
+
+    /**
+     * 이메일 찾기
+     * : 받은 정보로 회원 조회 후 이메일 반환
+     *
+     * @param nickname : 회원의 닉네임
+     * @param phone : 회원의 핸드폰 번호
+     * @return : 일치하는 회원의 이메일
+     * @throws : 일치하는 회원이 없는 경우 에러 발생 (404)
+     */
+    public String findEmail(String nickname, String phone){
+        Member member = memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+        if(!member.getPhone().equals(phone))
+            throw new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND);
+        return member.getEmail();
     }
 
     private String getKakaoToken(String code){
