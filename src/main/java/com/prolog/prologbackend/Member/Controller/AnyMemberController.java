@@ -14,7 +14,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,11 +70,5 @@ public class AnyMemberController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         else
             return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @GetMapping("/search/email")
-    ResponseEntity searchEmail(@RequestParam @NotBlank String nickname, @RequestParam @NotBlank String phone){
-        String email = anyMemberService.findEmail(nickname, phone);
-        return ResponseEntity.status(HttpStatus.OK).body(email);
     }
 }

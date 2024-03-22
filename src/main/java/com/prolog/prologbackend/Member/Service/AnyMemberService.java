@@ -146,22 +146,6 @@ public class AnyMemberService {
         return memberRepository.findByNickname(nickname).isPresent();
     }
 
-    /**
-     * 이메일 찾기
-     * : 받은 정보로 회원 조회 후 이메일 반환
-     *
-     * @param nickname : 회원의 닉네임
-     * @param phone : 회원의 핸드폰 번호
-     * @return : 일치하는 회원의 이메일
-     * @throws : 일치하는 회원이 없는 경우 에러 발생 (404)
-     */
-    public String findEmail(String nickname, String phone){
-        Member member = memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
-        if(!member.getPhone().equals(phone))
-            throw new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND);
-        return member.getEmail();
-    }
 
     private String getKakaoToken(String code){
         RestTemplate restTemplate = new RestTemplate();

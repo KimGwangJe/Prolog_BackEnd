@@ -20,6 +20,10 @@ public class RedisRepository {
         redisTemplate.opsForValue().set(jwt, email, exp, TimeUnit.MILLISECONDS);
     }
 
+    public void saveCertificationNumber(String email, String code){
+        redisTemplate.opsForValue().set("Certification:"+email, code, 300000, TimeUnit.MILLISECONDS);
+    }
+
     public String findByEmail(String user){
         String refreshToken = redisTemplate.opsForValue().get(user).toString();
         if(Objects.isNull(refreshToken))
