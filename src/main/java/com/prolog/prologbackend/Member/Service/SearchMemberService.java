@@ -88,6 +88,21 @@ public class SearchMemberService {
         searchRedisRepository.savePasswordCertification(member.getEmail());
     }
 
+    /**
+     * 비밀번호 재설정을 위한 인증 여부 확인
+     * : 비밀번호 재설정에 필요한 정보 및 인증 절차를 거쳤는지 확인
+     *
+     * @param nickname : 회원의 닉네임
+     * @param email : 회원의 이메일
+     */
+    public void checkCertificationStatus(String nickname, String email){
+        Member member = findMemberByEmail(email);
+        if(!member.getNickname().equals(nickname))
+            throw new BusinessLogicException(MemberExceptionType.MEMBER_BAD_REQUEST);
+        if(!searchRedisRepository.findCertificationStatus(member.getEmail()))
+            throw new BusinessLogicException(MemberExceptionType.CODE_UNAUTHORIZED);
+    }
+
 
     private Member findMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email)

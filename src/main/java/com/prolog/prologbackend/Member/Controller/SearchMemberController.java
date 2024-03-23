@@ -31,4 +31,10 @@ public class SearchMemberController {
         searchMemberService.checkCertificationNumber(email, code);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/password")
+    ResponseEntity checkCertificationStatus(@RequestParam @Email String email, @RequestParam String nickname){
+        searchMemberService.checkCertificationStatus(nickname, email);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

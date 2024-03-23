@@ -29,4 +29,8 @@ public class SearchRedisRepository {
             throw new BusinessLogicException(MemberExceptionType.CODE_NOT_FOUND);
         return code;
     }
+
+    public boolean findCertificationStatus(String user){
+        return redisTemplate.hasKey("Password:"+user).booleanValue();
+    }
 }
