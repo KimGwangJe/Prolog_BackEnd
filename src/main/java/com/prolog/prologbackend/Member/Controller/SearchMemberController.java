@@ -20,9 +20,15 @@ public class SearchMemberController {
         return ResponseEntity.status(HttpStatus.OK).body(email);
     }
 
-    @PostMapping("/password")
+    @PostMapping("/password/certification")
     ResponseEntity issueCertificationNumber(@RequestParam @Email String email){
         searchMemberService.issueCertificationNumber(email);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/password/certification")
+    ResponseEntity checkCertificationNumber(@RequestParam @Email String email, @RequestParam String code){
+        searchMemberService.checkCertificationNumber(email, code);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

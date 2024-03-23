@@ -4,7 +4,7 @@ import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
-import com.prolog.prologbackend.Security.Jwt.RedisRepository;
+import com.prolog.prologbackend.Member.Repository.SearchRedisRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @RequiredArgsConstructor
 public class SearchMemberService {
     private final MemberRepository memberRepository;
-    private final RedisRepository redisRepository;
+    private final SearchRedisRepository searchRedisRepository;
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
@@ -46,8 +46,7 @@ public class SearchMemberService {
      * @param email : 회원의 이메일
      */
     public void issueCertificationNumber(String email){
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+        Member member = findMemberByEmail(email);
         if(!member.getStatus().isBasicMember())
             throw new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND);
 
@@ -71,6 +70,28 @@ public class SearchMemberService {
             e.printStackTrace();
         }
 
-        redisRepository.saveCertificationNumber(member.getEmail(), code);
+        searchRedisRepository.saveCertificationNumber(member.getEmail(), code);
+    }
+
+    /**
+     * 인증번호 확인
+     * : 발급받은 인증번호와 일치하는지 확인 후 인증 여부 저장
+     * 
+     * @param email : 회원의 이메일
+     * @param code : 입력한 인증번호
+     */
+    public void checkCertificationNumber(String email, String code){
+        Member member = findMemberByEmail(email);
+        String codeInRedis = searchRedisRepository.findCertificationNumberByEmail(member.getEmail());
+        if(!code.equals(codeInRedis))
+            throw new BusinessLogicException(MemberExceptionType.CODE_BAD_REQUEST);
+        searchRedisRepository.savePasswordCertification(member.getEmail());
+    }
+
+
+    private Member findMemberByEmail(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+        return member;
     }
 }

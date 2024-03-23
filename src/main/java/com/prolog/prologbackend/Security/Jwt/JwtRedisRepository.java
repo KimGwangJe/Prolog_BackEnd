@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
-public class RedisRepository {
+public class JwtRedisRepository {
     private final RedisTemplate redisTemplate;
 
     public void saveRefresh(String jwt, String email, long exp){
@@ -18,10 +18,6 @@ public class RedisRepository {
 
     public void saveAccess(String jwt, String email, long exp){
         redisTemplate.opsForValue().set(jwt, email, exp, TimeUnit.MILLISECONDS);
-    }
-
-    public void saveCertificationNumber(String email, String code){
-        redisTemplate.opsForValue().set("Certification:"+email, code, 300000, TimeUnit.MILLISECONDS);
     }
 
     public String findByEmail(String user){
