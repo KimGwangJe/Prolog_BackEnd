@@ -1,5 +1,6 @@
 package com.prolog.prologbackend.Member.Controller;
 
+import com.prolog.prologbackend.Member.DTO.Request.PasswordUpdateDto;
 import com.prolog.prologbackend.Member.Service.SearchMemberService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +36,12 @@ public class SearchMemberController {
     @GetMapping("/password")
     ResponseEntity checkCertificationStatus(@RequestParam @Email String email, @RequestParam String nickname){
         searchMemberService.checkCertificationStatus(nickname, email);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PatchMapping("/password")
+    ResponseEntity updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto){
+        searchMemberService.updatePassword(passwordUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

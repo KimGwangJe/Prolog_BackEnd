@@ -1,15 +1,18 @@
 package com.prolog.prologbackend.Member.Service;
 
 import com.prolog.prologbackend.Exception.BusinessLogicException;
+import com.prolog.prologbackend.Member.DTO.Request.PasswordUpdateDto;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
 import com.prolog.prologbackend.Member.Repository.SearchRedisRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -21,6 +24,7 @@ public class SearchMemberService {
     private final SearchRedisRepository searchRedisRepository;
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 이메일 찾기
@@ -99,8 +103,20 @@ public class SearchMemberService {
         Member member = findMemberByEmail(email);
         if(!member.getNickname().equals(nickname))
             throw new BusinessLogicException(MemberExceptionType.MEMBER_BAD_REQUEST);
-        if(!searchRedisRepository.findCertificationStatus(member.getEmail()))
-            throw new BusinessLogicException(MemberExceptionType.CODE_UNAUTHORIZED);
+        findCertificationStatusInRedis(member.getEmail());
+    }
+
+    /**
+     * 비밀번호 재설정
+     *
+     * @param passwordUpdateDto : 재설정에 필요한 회원의 정보가 담긴 클래스
+     */
+    @Transactional
+    public void updatePassword(PasswordUpdateDto passwordUpdateDto){
+        Member member = findMemberByEmail(passwordUpdateDto.getEmail());
+        findCertificationStatusInRedis(member.getEmail());
+        String encodePassword = passwordEncoder.encode(passwordUpdateDto.getPassword());
+        member.updatePassword(encodePassword);
     }
 
 
@@ -108,5 +124,10 @@ public class SearchMemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
         return member;
+    }
+
+    private void findCertificationStatusInRedis(String email){
+        if(!searchRedisRepository.findCertificationStatus(email))
+            throw new BusinessLogicException(MemberExceptionType.CODE_UNAUTHORIZED);
     }
 }
