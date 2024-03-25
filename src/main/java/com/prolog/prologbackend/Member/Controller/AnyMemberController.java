@@ -64,6 +64,13 @@ public class AnyMemberController {
             return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Operation(summary = "닉네임 중복 확인 메서드")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok : 사용 가능한 닉네임"),
+            @ApiResponse(responseCode = "409", description = "Conflict : 이미 사용중인 닉네임",
+                    content = @Content(schema = @Schema(implementation=Void.class)))
+    })
+    @Parameter(name = "회원 닉네임", description = "사용중인지 확인하고 싶은 닉네임", example = "kimLeeChoi21", required = true)
     @GetMapping("/nickname")
     ResponseEntity validateNickname(@RequestParam @NotBlank @Size(max=20, message="닉네임은 20자 미만으로 작성해야 합니다.") String nickname) {
         if(anyMemberService.validateNickname(nickname))
@@ -72,6 +79,15 @@ public class AnyMemberController {
             return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Operation(summary = "이메일 인증 확인 메서드")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok : 이메일 인증 성공"),
+            @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
+                    content = @Content(schema = @Schema(implementation=Void.class))),
+            @ApiResponse(responseCode = "409", description = "Conflict : 이미 인증된 이메일",
+                    content = @Content(schema = @Schema(implementation=Void.class)))
+    })
+    @Schema(description = "Path Variable. 이메일 인증을 위해 발급받은 토큰", example = "verificationTokenVerificationEmailToken")
     @PatchMapping("/verification/{token}")
     ResponseEntity verificationEmail(@PathVariable String token){
         anyMemberService.verificationEmail(token);
