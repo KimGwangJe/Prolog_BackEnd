@@ -20,14 +20,15 @@ public class SearchRedisRepository {
     }
 
     public void savePasswordCertification(String email){
-        redisTemplate.opsForValue().set("Password:"+email, true, CERTIFICATION_TIMEOUT, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set("Password:"+email, Boolean.toString(true), CERTIFICATION_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public String findCertificationNumberByEmail(String user){
-        String code = redisTemplate.opsForValue().get("Certification:"+user).toString();
-        if(Objects.isNull(code))
+    public void validateCertificationNumberByEmail(String user, String code){
+        String codeInRedis = redisTemplate.opsForValue().get("Certification:"+user).toString();
+        if(Objects.isNull(codeInRedis))
             throw new BusinessLogicException(MemberExceptionType.CODE_NOT_FOUND);
-        return code;
+        if(!code.equals(codeInRedis))
+            throw new BusinessLogicException(MemberExceptionType.CODE_BAD_REQUEST);
     }
 
     public boolean findCertificationStatus(String user){

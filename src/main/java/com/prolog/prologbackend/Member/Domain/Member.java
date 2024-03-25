@@ -80,6 +80,10 @@ public class Member extends BaseTimeEntity{
             this.nickname = nickname;
     }
 
+    public void setVerified(){
+        this.isVerified = true;
+    }
+
     public void joinToBasic(String password, String phone) {
         this.password = password;
         this.phone = phone;

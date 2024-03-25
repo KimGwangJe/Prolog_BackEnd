@@ -71,4 +71,10 @@ public class AnyMemberController {
         else
             return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @PatchMapping("/verification/{token}")
+    ResponseEntity verificationEmail(@PathVariable String token){
+        anyMemberService.verificationEmail(token);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

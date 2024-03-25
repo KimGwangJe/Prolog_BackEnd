@@ -4,10 +4,7 @@ import com.prolog.prologbackend.Security.ExceptionType.SecurityExceptionType;
 import com.prolog.prologbackend.Security.UserDetails.CustomUserDetails;
 import com.prolog.prologbackend.Security.UserDetails.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +24,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         CustomUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
         if(!userDetails.isEnabled()){
             throw new DisabledException(SecurityExceptionType.DISABLED.getErrorMessage());
+        } else if(!userDetails.isAccountNonLocked()){
+            throw new LockedException(SecurityExceptionType.LOCKED.getErrorMessage());
         }
         if(!passwordEncoder.matches(password, userDetails.getPassword())){
             throw new BadCredentialsException(SecurityExceptionType.BAD_CREDENTIALS.getErrorMessage());

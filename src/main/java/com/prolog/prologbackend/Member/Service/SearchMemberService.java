@@ -37,9 +37,9 @@ public class SearchMemberService {
      */
     public String findEmail(String nickname, String phone){
         Member member = memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
         if(!member.getPhone().equals(phone))
-            throw new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND);
+            throw new BusinessLogicException(MemberExceptionType.NOT_FOUND);
         return member.getEmail();
     }
 
@@ -52,7 +52,7 @@ public class SearchMemberService {
     public void issueCertificationNumber(String email){
         Member member = findMemberByEmail(email);
         if(!member.getStatus().isBasicMember())
-            throw new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND);
+            throw new BusinessLogicException(MemberExceptionType.NOT_FOUND);
 
         int num = (int) (Math.random() * 9000) + 1000;
         String code = String.valueOf(num);
@@ -84,11 +84,9 @@ public class SearchMemberService {
      * @param email : 회원의 이메일
      * @param code : 입력한 인증번호
      */
-    public void checkCertificationNumber(String email, String code){
+    public void checkCertificationNumber(String email, int code){
         Member member = findMemberByEmail(email);
-        String codeInRedis = searchRedisRepository.findCertificationNumberByEmail(member.getEmail());
-        if(!code.equals(codeInRedis))
-            throw new BusinessLogicException(MemberExceptionType.CODE_BAD_REQUEST);
+        searchRedisRepository.validateCertificationNumberByEmail(member.getEmail(), String.valueOf(code));
         searchRedisRepository.savePasswordCertification(member.getEmail());
     }
 
@@ -102,7 +100,7 @@ public class SearchMemberService {
     public void checkCertificationStatus(String nickname, String email){
         Member member = findMemberByEmail(email);
         if(!member.getNickname().equals(nickname))
-            throw new BusinessLogicException(MemberExceptionType.MEMBER_BAD_REQUEST);
+            throw new BusinessLogicException(MemberExceptionType.BAD_REQUEST);
         findCertificationStatusInRedis(member.getEmail());
     }
 
@@ -122,7 +120,7 @@ public class SearchMemberService {
 
     private Member findMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
         return member;
     }
 

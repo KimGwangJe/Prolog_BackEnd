@@ -28,7 +28,7 @@ public class SearchMemberController {
     }
 
     @GetMapping("/password/certification")
-    ResponseEntity checkCertificationNumber(@RequestParam @Email String email, @RequestParam String code){
+    ResponseEntity checkCertificationNumber(@RequestParam @Email String email, @RequestParam int code){
         searchMemberService.checkCertificationNumber(email, code);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

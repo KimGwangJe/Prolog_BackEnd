@@ -2,15 +2,13 @@ package com.prolog.prologbackend.TeamMember.Service;
 
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.Domain.Member;
-import com.prolog.prologbackend.Member.Service.MemberService;
 import com.prolog.prologbackend.Project.Domain.Project;
-import com.prolog.prologbackend.Project.Service.ProjectServiceImpl;
-import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Domain.Part;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
 import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,22 +20,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
-    private final MemberService memberService;
-    private final ProjectServiceImpl projectService;
 
     /**
      * 필요한 정보를 받아 새 팀멤버 등록
      *
-     * @param teamMemberDto : 등록을 원하는 팀멤버 정보
+     * @param project : 소속 프로젝트 정보
+     * @param member : 등록할 회원 정보
+     * @param parts : 프로젝트 내 역할 목록
      */
     @Transactional
-    public void createTeamMember(CreateTeamMemberDto teamMemberDto) {
-        Project project = projectService.getProject(teamMemberDto.getProjectId());
-        Member member = memberService.getMember(teamMemberDto.getMemberId());
+    public void createTeamMember(Project project, Member member, List<Part> parts) {
         teamMemberRepository.findByMemberAndProject(member,project)
                 .ifPresent( t -> { throw new BusinessLogicException(TeamMemberExceptionType.CONFLICT); });
 
-        String part = teamMemberDto.getParts().stream().map(Part::toString).collect(Collectors.joining(","));
+        String part = parts.stream().map(Part::toString).collect(Collectors.joining(","));
 
         TeamMember teamMember = TeamMember.builder()
                 .part(part).member(member).project(project)
