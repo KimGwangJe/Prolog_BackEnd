@@ -35,7 +35,7 @@ public class MemberService {
 
         if(!member.getEmail().equals(dto.getEmail()))
             memberRepository.findByEmail(dto.getEmail()).ifPresent(
-                    t -> { throw new BusinessLogicException(MemberExceptionType.MEMBER_CONFLICT); }
+                    t -> { throw new BusinessLogicException(MemberExceptionType.CONFLICT); }
             );
 
         member.updateEmail(dto.getEmail());
@@ -61,6 +61,6 @@ public class MemberService {
 
     public Member getMember(Long memberId){
         return memberRepository.findById(memberId)
-                .orElseThrow( () -> new BusinessLogicException(MemberExceptionType.MEMBER_NOT_FOUND));
+                .orElseThrow( () -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
     }
 }

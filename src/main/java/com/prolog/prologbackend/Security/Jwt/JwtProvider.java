@@ -19,7 +19,7 @@ import java.util.Date;
 public class JwtProvider {
     @Value("${jwt.key}")
     private String key;
-    private final RedisRepository redisRepository;
+    private final JwtRedisRepository jwtRedisRepository;
 
 
     public String createToken(JwtType jwtType, String email){
@@ -34,7 +34,7 @@ public class JwtProvider {
                 .setExpiration(expirationTime)
                 .compact();
         if(jwtType.equals(JwtType.REFRESH_TOKEN)){
-            redisRepository.saveRefresh(newToken, email, jwtType.getExpirationTime());
+            jwtRedisRepository.saveRefresh(newToken, email, jwtType.getExpirationTime());
         }
         return newToken;
     }
@@ -64,14 +64,14 @@ public class JwtProvider {
     }
 
     public void verifyWithRedisToken(String token, String email){
-        String redisToken = redisRepository.findByEmail(email);
+        String redisToken = jwtRedisRepository.findByEmail(email);
         if(!token.equals(redisToken)){
             throw new BusinessLogicException(SecurityExceptionType.UNAUTHORIZED);
         }
     }
 
     public void verifyWithAccessToken(String token){
-        if(redisRepository.findByToken(token))
+        if(jwtRedisRepository.findByToken(token))
             throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
     }
 }

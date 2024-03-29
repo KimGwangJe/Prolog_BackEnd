@@ -12,10 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,6 +66,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             setErrorResponse(response, SecurityExceptionType.BAD_CREDENTIALS);
         }else if(exception instanceof DisabledException){
             setErrorResponse(response, SecurityExceptionType.DISABLED);
+        }else if(exception instanceof LockedException){
+            setErrorResponse(response, SecurityExceptionType.LOCKED);
         }
     }
 

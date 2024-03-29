@@ -15,7 +15,7 @@ public class MemberJoinDto {
     private String email;
     @Schema(description = "사용할 password", example = "password1234")
     @NotBlank
-    @Size(min=8, max=20, message="비밀번호는 최소 8자리, 최대 12자리로 작성해야 합니다.")
+    @Size(min=8, max=12, message="비밀번호는 최소 8자리, 최대 12자리로 작성해야 합니다.")
     private String password;
     @Schema(description = "사용할 nickname", example = "개발새발")
     @NotBlank

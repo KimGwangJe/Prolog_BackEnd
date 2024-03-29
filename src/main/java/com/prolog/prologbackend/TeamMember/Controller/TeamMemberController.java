@@ -1,6 +1,9 @@
 package com.prolog.prologbackend.TeamMember.Controller;
 
 import com.prolog.prologbackend.Member.Domain.Member;
+import com.prolog.prologbackend.Member.Service.MemberService;
+import com.prolog.prologbackend.Project.Domain.Project;
+import com.prolog.prologbackend.Project.Service.ProjectServiceImpl;
 import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TeamMemberController {
     private final TeamMemberService teamMemberService;
+    private final MemberService memberService;
+    private final ProjectServiceImpl projectService;
 
     @Operation(summary = "팀멤버 등록 메서드")
     @ApiResponses(value = {
@@ -32,7 +37,9 @@ public class TeamMemberController {
     })
     @PostMapping("/teamMembers")
     public ResponseEntity createTeamMember(@Valid @RequestBody CreateTeamMemberDto createTeamMemberDto){
-        teamMemberService.createTeamMember(createTeamMemberDto);
+        Project project = projectService.getProject(createTeamMemberDto.getProjectId());
+        Member member = memberService.getMember(createTeamMemberDto.getMemberId());
+        teamMemberService.createTeamMember(project, member, createTeamMemberDto.getParts());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

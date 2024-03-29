@@ -40,7 +40,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !member.isDeleted();
     }
 
     @Override
@@ -50,6 +50,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !member.isDeleted();
+        return member.isVerified();
     }
 }
