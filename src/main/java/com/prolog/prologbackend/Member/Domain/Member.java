@@ -26,8 +26,9 @@ public class Member extends BaseTimeEntity{
     private String phone;
     @Column(nullable = false)
     private String profileImage;
-    @Column(nullable = false)
     private String profileName;
+    @Column(nullable = false)
+    private boolean isBasicImage;
     @Column(nullable = false)
     private boolean isDeleted;
     @Column(nullable = false)
@@ -40,7 +41,7 @@ public class Member extends BaseTimeEntity{
 
     @Builder
     Member(String email, String password, Long socialId, String nickname, String phone, String profileImage,
-                      String profileName, boolean isDeleted, boolean isVerified, MemberStatus status, String roles){
+           String profileName, boolean isBasicImage, boolean isDeleted, boolean isVerified, MemberStatus status, String roles){
         this.email = email;
         this.password = password;
         this.socialId = socialId;
@@ -48,6 +49,7 @@ public class Member extends BaseTimeEntity{
         this.phone = phone;
         this.profileImage = profileImage;
         this.profileName = profileName;
+        this.isBasicImage = isBasicImage;
         this.isDeleted = isDeleted;
         this.isVerified = isVerified;
         this.status = status;
@@ -92,5 +94,16 @@ public class Member extends BaseTimeEntity{
     public void joinToSocial(Long socialId) {
         this.socialId = socialId;
         this.status = MemberStatus.BOTH;
+    }
+
+    public void updateProfile(String profileImage, String profileName) {
+        this.profileImage = profileImage;
+        if(profileName != null){
+            this.isBasicImage = false;
+            this.profileName = profileName;
+        }else{
+            this.isBasicImage = true;
+            this.profileName = null;
+        }
     }
 }
