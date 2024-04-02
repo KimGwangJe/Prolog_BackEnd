@@ -74,11 +74,11 @@ public class AnyMemberService {
                     .password(passwordEncoder.encode(joinDto.getPassword()))
                     .phone(joinDto.getPhone())
                     .nickname(joinDto.getNickname())
+                    .isBasicImage(true)
                     .isDeleted(false)
                     .isVerified(false)
                     .status(MemberStatus.BASIC)
                     .profileImage("profileImageUrl")
-                    .profileName("basicProfileImage")
                     .roles("ROLE_USER")
                     .build();
             memberRepository.save(newMember);
@@ -129,11 +129,11 @@ public class AnyMemberService {
                     .email(email)
                     .socialId(socialId)
                     .nickname(nickname)
+                    .isBasicImage(true)
                     .isDeleted(false)
                     .isVerified(false)
                     .status(MemberStatus.SOCIAL)
                     .profileImage("profileImageUrl")
-                    .profileName("basicProfileImage")
                     .roles("ROLE_USER")
                     .build();
 

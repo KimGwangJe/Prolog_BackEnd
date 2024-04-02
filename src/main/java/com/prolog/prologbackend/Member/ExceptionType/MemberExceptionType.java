@@ -10,7 +10,10 @@ public enum MemberExceptionType implements ExceptionType {
     CODE_BAD_REQUEST(400, "잘못된 인증번호 입니다"),
     CODE_UNAUTHORIZED(401,"이메일을 인증해주세요"),
     CODE_NOT_FOUND(404, "인증번호를 발급해주세요"),
-    VERIFICATION_CONFLICT(409, "이미 인증 완료된 회원입니다");
+    VERIFICATION_CONFLICT(409, "이미 인증 완료된 회원입니다"),
+    //이미지 수정
+    IMAGE_BAD_REQUEST(400, "지원하지 않는 파일 형식입니다"),
+    IMAGE_CONFLICT(409,"이미 초기화된 회원입니다");
 
     private int errorCode;
     private String errorMessage;
