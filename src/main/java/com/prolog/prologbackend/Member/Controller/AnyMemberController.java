@@ -2,6 +2,7 @@ package com.prolog.prologbackend.Member.Controller;
 
 import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
 import com.prolog.prologbackend.Member.Service.AnyMemberService;
+import com.prolog.prologbackend.Security.Jwt.JwtType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -18,10 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @Tag(name="멤버 관련 API (인가 불필요)", description = "모든 사용자가 접근할 수 있는 요청과 관련된 멤버 API 문서입니다.")
 @RestController
+@RequestMapping("/members")
 @RequiredArgsConstructor
 public class AnyMemberController {
     private final AnyMemberService anyMemberService;
@@ -43,10 +44,12 @@ public class AnyMemberController {
             @ApiResponse(responseCode = "201", description = "Created : 소셜 로그인 성공")
     })
     @Parameter(name = "인증 코드", description = "카카오 서버 인증에 필요한 코드", example = "kakaoCodeKakaoCode", required = true)
-    @PostMapping("/oauth/kakao/login")
-    ResponseEntity socialLoginMember(@RequestParam String code){
-        Map tokens = anyMemberService.loginToKaKao(code);
-        return ResponseEntity.status(HttpStatus.CREATED).body(tokens);
+    @PostMapping("/login/oauth/kakao")
+    ResponseEntity socialLoginMember(@RequestParam String code, HttpServletResponse response){
+        String[] tokens = anyMemberService.loginToKaKao(code);
+        response.addHeader(JwtType.ACCESS_TOKEN.getTokenType(),tokens[0]);
+        response.addHeader(JwtType.REFRESH_TOKEN.getTokenType(),tokens[1]);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "회원 가입 시 이메일 검증 메서드")

@@ -31,9 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +48,8 @@ public class AnyMemberService {
     private String REDIRECT_URI;
     @Value("${url.verification}")
     private String VERIFICATION_URL;
+    @Value("${url.profileImage}")
+    private String PROFILE_IMAGE_URL;
 
 
     /**
@@ -63,13 +63,14 @@ public class AnyMemberService {
     @Transactional
     public void joinMember(MemberJoinDto joinDto){
         Optional<Member> getMember = memberRepository.findByEmail(joinDto.getEmail());
+        Member newMember;
         if(getMember.isPresent()){
             if(getMember.get().getStatus().isBasicMember())
                 throw new BusinessLogicException(MemberExceptionType.CONFLICT);
-            Member member = getMember.get();
-            member.joinToBasic(passwordEncoder.encode(joinDto.getPassword()), joinDto.getPhone());
+            newMember = getMember.get();
+            newMember.joinToBasic(passwordEncoder.encode(joinDto.getPassword()), joinDto.getPhone());
         } else {
-            Member newMember = Member.builder()
+            newMember = Member.builder()
                     .email(joinDto.getEmail())
                     .password(passwordEncoder.encode(joinDto.getPassword()))
                     .phone(joinDto.getPhone())
@@ -78,7 +79,7 @@ public class AnyMemberService {
                     .isDeleted(false)
                     .isVerified(false)
                     .status(MemberStatus.BASIC)
-                    .profileImage("profileImageUrl")
+                    .profileImage(PROFILE_IMAGE_URL)
                     .roles("ROLE_USER")
                     .build();
             memberRepository.save(newMember);
@@ -100,7 +101,11 @@ public class AnyMemberService {
 
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e){
-            e.printStackTrace();
+            if(newMember.getStatus().isSocialMember())
+                newMember.resetJoinToBasic();
+            else
+                memberRepository.delete(newMember);
+            throw new BusinessLogicException(MemberExceptionType.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -114,12 +119,11 @@ public class AnyMemberService {
      * @return : 성공 시 발급 될 액세스 토큰과 리프레시 토큰
      */
     @Transactional
-    public Map<String, String> loginToKaKao(String code){
+    public String[] loginToKaKao(String code){
         String kakaoToken = getKakaoToken(code);
 
         KaKaoInfoDto infos = getKakaoInfo("Bearer "+kakaoToken);
 
-        Long socialId = infos.getId();
         String email =  infos.getKakao_account().getEmail();
         String nickname = infos.getKakao_account().getProfile().getNickname();
 
@@ -127,29 +131,26 @@ public class AnyMemberService {
         if(!getMember.isPresent()){
             Member newMember = Member.builder()
                     .email(email)
-                    .socialId(socialId)
                     .nickname(nickname)
                     .isBasicImage(true)
                     .isDeleted(false)
                     .isVerified(false)
                     .status(MemberStatus.SOCIAL)
-                    .profileImage("profileImageUrl")
+                    .profileImage(PROFILE_IMAGE_URL)
                     .roles("ROLE_USER")
                     .build();
 
             memberRepository.save(newMember);
         } else if(!getMember.get().getStatus().isSocialMember()) {
-            Member member = getMember.get();
-            member.joinToSocial(socialId);
+            getMember.get().joinToSocial();
         }
 
         String accessToken = jwtProvider.createToken(JwtType.ACCESS_TOKEN,email);
         String refreshToken = jwtProvider.createToken(JwtType.REFRESH_TOKEN,email);
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put(JwtType.ACCESS_TOKEN.getTokenType(), "Bearer "+accessToken);
-        tokens.put(JwtType.REFRESH_TOKEN.getTokenType(), "Bearer "+refreshToken);
-
+        String[] tokens = new String[2];
+        tokens[0] = "Bearer "+accessToken;
+        tokens[1] = "Bearer "+refreshToken;
         return tokens;
     }
 

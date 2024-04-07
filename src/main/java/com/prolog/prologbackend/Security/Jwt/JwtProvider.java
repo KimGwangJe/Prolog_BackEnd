@@ -41,7 +41,7 @@ public class JwtProvider {
 
     public String substringToken(String token){
         if(!token.startsWith("Bearer "))
-            throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
+            throw new BusinessLogicException(SecurityExceptionType.JWT_BAD_REQUEST);
         return token.replace("Bearer ", "");
     }
 
@@ -60,18 +60,18 @@ public class JwtProvider {
 
     public void verifyType(JwtType type, Claims claims){
         if(!type.getTokenType().equals(claims.get("token_type")))
-            throw new BusinessLogicException(SecurityExceptionType.BAD_REQUEST_JWT);
+            throw new BusinessLogicException(SecurityExceptionType.JWT_BAD_REQUEST);
     }
 
     public void verifyWithRedisToken(String token, String email){
         String redisToken = jwtRedisRepository.findByEmail(email);
         if(!token.equals(redisToken)){
-            throw new BusinessLogicException(SecurityExceptionType.UNAUTHORIZED);
+            throw new BusinessLogicException(SecurityExceptionType.JWT_UNAUTHORIZED);
         }
     }
 
     public void verifyWithAccessToken(String token){
         if(jwtRedisRepository.findByToken(token))
-            throw new BusinessLogicException(SecurityExceptionType.MALFORMED_JWT);
+            throw new BusinessLogicException(SecurityExceptionType.JWT_FORBIDDEN);
     }
 }

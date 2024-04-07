@@ -33,8 +33,7 @@ public class SearchMemberController {
     @Parameter(name = "회원 핸드폰 번호", description = "회원 정보 확인을 위한 핸드폰 번호", example = "010-1234-5678", required = true)
     @GetMapping("/email")
     ResponseEntity searchEmail(@RequestParam @NotBlank String nickname, @RequestParam @NotBlank String phone){
-        String email = searchMemberService.findEmail(nickname, phone);
-        return ResponseEntity.status(HttpStatus.OK).body(email);
+        return ResponseEntity.status(HttpStatus.OK).body(searchMemberService.findEmail(nickname, phone));
     }
 
     @Operation(summary = "인증 번호 발급 메서드")
