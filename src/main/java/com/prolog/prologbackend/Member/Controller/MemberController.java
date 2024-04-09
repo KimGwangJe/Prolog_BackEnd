@@ -54,7 +54,7 @@ public class MemberController {
     })
     @DeleteMapping
     ResponseEntity withdrawMember(@AuthenticationPrincipal Member member){
-        memberService.removeMember(member);
+        memberService.deleteMember(member);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

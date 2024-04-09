@@ -1,11 +1,15 @@
 package com.prolog.prologbackend.TeamMember.Domain;
 
 import com.prolog.prologbackend.Member.Domain.Member;
+import com.prolog.prologbackend.Notes.Domain.Notes;
 import com.prolog.prologbackend.Project.Domain.Project;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -22,6 +26,8 @@ public class TeamMember {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
+    @OneToMany(mappedBy = "teamMember", orphanRemoval = true, cascade = CascadeType.PERSIST)
+    private List<Notes> notes = new ArrayList<>();
 
     @Builder
     TeamMember(String part, Member member, Project project){

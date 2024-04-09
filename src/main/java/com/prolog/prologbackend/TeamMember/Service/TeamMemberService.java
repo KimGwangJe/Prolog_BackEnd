@@ -8,7 +8,6 @@ import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
 import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -68,22 +67,14 @@ public class TeamMemberService {
     }
 
     /**
-     * 특정 멤버의 모든 팀멤버 엔티티 삭제
+     * 팀멤버 id 목록에 해당하는 엔티티 삭제
      * : 회원 탈퇴 시 호출
-     * : 팀멤버 삭제 전 연관 프로젝트 및 일지 삭제 선행
      *
-     * @param member : 특정 회원을 기준으로 팀멤버 목록 조회
+     * @param teamMembersIds : 삭제할 팀멤버의 id 목록
      */
     @Transactional
-    public void removeTeamMemberByMember(Member member){
-        List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
-        List<Long> projectIds = teamMembers.stream().map(t -> t.getProject().getProjectId()).toList();
-        //추가할 예정 1 : 일치하는 프로젝트 삭제
-        //1) Id : List<Long> projectIds = teamMembers.stream().map(t -> t.getProject().getProjectId()).toList();
-        //2) Entity : List<Project> projects = teamMembers.stream().map(TeamMember::getProject).toList();
-        List<Long> teamMemberIds = teamMembers.stream().map(TeamMember::getId).toList();
-        //추가할 예정 2 : 팀멤버와 연관된 일지 삭제 - 프로젝트 엔티티 혹은 아이디를 인자로 넘겨줌
-        teamMemberRepository.deleteAllByIdInBatch(teamMemberIds);
+    public void removeTeamMember(List<Long> teamMembersIds){
+        teamMemberRepository.deleteAllByIdInBatch(teamMembersIds);
     }
 
     /**
