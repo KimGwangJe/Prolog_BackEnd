@@ -11,10 +11,10 @@ public enum SecurityExceptionType implements ExceptionType {
     DISABLED(422,"이메일을 인증해주세요."),
     LOCKED(423,"탈퇴한 회원입니다."),
     //인가 예외
-    EXPIRED_JWT(401,"만료된 토큰입니다."),
-    MALFORMED_JWT(401, "잘못된 토큰입니다."),
-    BAD_REQUEST_JWT(401, "올바르지 않은 토큰입니다."),
-    UNAUTHORIZED(401, "일치하지 않은 토큰입니다.");
+    JWT_BAD_REQUEST(400, "올바르지 않은 토큰입니다."),
+    JWT_EXPIRED(401,"만료된 토큰입니다."),
+    JWT_UNAUTHORIZED(401, "일치하지 않은 토큰입니다."),
+    JWT_FORBIDDEN(403, "사용할 수 없는 토큰입니다.");
 
     private int errorCode;
     private String errorMessage;

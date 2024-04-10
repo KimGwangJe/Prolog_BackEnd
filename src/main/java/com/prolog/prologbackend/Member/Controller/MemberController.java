@@ -30,7 +30,7 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Ok : 사용자 정보 조회 성공",
                     content = @Content(schema = @Schema(implementation=SimpleMemberDto.class)))
     })
-    @GetMapping
+    @GetMapping("/information")
     ResponseEntity getMember(@AuthenticationPrincipal Member member){
         return ResponseEntity.status(HttpStatus.OK).body(SimpleMemberDto.of(member));
     }
@@ -41,7 +41,7 @@ public class MemberController {
             @ApiResponse(responseCode = "409", description = "Conflict : 변경하려는 이메일이 이미 사용중임",
                     content = @Content(schema = @Schema(implementation=Void.class)))
     })
-    @PatchMapping
+    @PatchMapping("/information")
     ResponseEntity updateMember(@AuthenticationPrincipal Member member,
                                 @RequestBody @Valid MemberUpdateDto dto){
         memberService.updateMember(member.getEmail(), dto);
@@ -54,7 +54,7 @@ public class MemberController {
     })
     @DeleteMapping
     ResponseEntity withdrawMember(@AuthenticationPrincipal Member member){
-        memberService.removeMember(member);
+        memberService.deleteMember(member);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -66,10 +66,5 @@ public class MemberController {
         else
             memberService.updateProfileImage(member.getEmail(), image);
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-    @DeleteMapping("/image")
-    ResponseEntity deleteProfileImage(@AuthenticationPrincipal Member member){
-        //memberService.updateProfileImage(member);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

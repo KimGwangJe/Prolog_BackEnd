@@ -66,16 +66,20 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             }catch (UsernameNotFoundException exception){
                 setErrorResponse(response, SecurityExceptionType.NOT_FOUND);
             }catch (ExpiredJwtException exception){
-                setErrorResponse(response, SecurityExceptionType.EXPIRED_JWT);
+                setErrorResponse(response, SecurityExceptionType.JWT_EXPIRED);
             }
         }
     }
 
-    private void setErrorResponse(HttpServletResponse response, ExceptionType exceptionType) throws IOException {
+    private void setErrorResponse(HttpServletResponse response, ExceptionType exceptionType){
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("utf-8");
         response.setStatus(exceptionType.getErrorCode());
         ErrorResponse errorBody = ErrorResponse.of(exceptionType);
-        new ObjectMapper().writeValue(response.getWriter(), errorBody);
+        try {
+            new ObjectMapper().writeValue(response.getWriter(), errorBody);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }

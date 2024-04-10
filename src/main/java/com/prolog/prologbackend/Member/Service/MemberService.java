@@ -7,6 +7,9 @@ import com.prolog.prologbackend.Member.DTO.Request.MemberUpdateDto;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
+import com.prolog.prologbackend.Notes.Service.NotesServiceImpl;
+import com.prolog.prologbackend.Project.Service.ProjectServiceImpl;
+import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +31,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TeamMemberService teamMemberService;
+    private final ProjectServiceImpl projectService;
+    private final NotesServiceImpl notesService;
     private final AmazonS3Client amazonS3Client;
     @Value("${S3Bucket}")
     private String BUCKET;
@@ -62,13 +67,25 @@ public class MemberService {
 
     /**
      * 회원 탈퇴
-     * : 회원 상태 변경 전 관련된 팀멤버 엔티티 모두 삭제 선행
+     * : 회원 및 프로젝트 상태 변경
+     * : 관련된 팀멤버 및 노트 엔티티 모두 삭제
      *
      * @param member : 요청 보낸 (탈퇴를 진행할) 사용자의 정보
      */
     @Transactional
-    public void removeMember(Member member){
-        teamMemberService.removeTeamMemberByMember(member);
+    public void deleteMember(Member member){
+        List<TeamMember> teamMembers = teamMemberService.getListByMember(member);
+
+        List<Long> projectIds = teamMembers.stream().filter(t -> t.getPart().contains("Leader"))
+                        .map(t -> t.getProject().getProjectId()).toList();
+        for(Long projectId : projectIds){
+            projectService.deleteProject(projectId,member.getId());
+        }
+
+        List<Long> teamMembersIds = teamMembers.stream().map(t -> t.getId()).toList();
+        notesService.deleteImageAndNotes(teamMembersIds);
+        teamMemberService.removeTeamMember(teamMembersIds);
+
         LocalDateTime updateDate = LocalDateTime.now();
         memberRepository.updateMemberStatus(updateDate, member.getId());
     }

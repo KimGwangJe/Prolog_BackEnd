@@ -91,9 +91,15 @@ public class Member extends BaseTimeEntity{
         this.phone = phone;
         this.status = MemberStatus.BOTH;
     }
-    public void joinToSocial(Long socialId) {
-        this.socialId = socialId;
+
+    public void joinToSocial() {
         this.status = MemberStatus.BOTH;
+    }
+
+    public void resetJoinToBasic() {
+        this.password = null;
+        this.phone = null;
+        this.status = MemberStatus.SOCIAL;
     }
 
     public void updateProfile(String profileImage, String profileName) {

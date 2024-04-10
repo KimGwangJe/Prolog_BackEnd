@@ -43,7 +43,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             SecurityContextHolder.getContext().setAuthentication(authResult);
             return authResult;
         } catch(IOException e) {
-            e.printStackTrace();;
+            e.printStackTrace();
         }
         return null;
     }
@@ -71,11 +71,15 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         }
     }
 
-    private void setErrorResponse(HttpServletResponse response, ExceptionType exceptionType) throws IOException {
+    private void setErrorResponse(HttpServletResponse response, ExceptionType exceptionType){
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("utf-8");
         response.setStatus(exceptionType.getErrorCode());
         ErrorResponse errorBody = ErrorResponse.of(exceptionType);
-        new ObjectMapper().writeValue(response.getWriter(), errorBody);
+        try {
+            new ObjectMapper().writeValue(response.getWriter(), errorBody);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }

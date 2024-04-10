@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class SearchMemberService {
@@ -32,15 +35,17 @@ public class SearchMemberService {
      *
      * @param nickname : 회원의 닉네임
      * @param phone : 회원의 핸드폰 번호
-     * @return : 일치하는 회원의 이메일
+     * @return : 일치하는 회원의 이메일이 담긴 map
      * @throws : 일치하는 회원이 없는 경우 에러 발생 (404)
      */
-    public String findEmail(String nickname, String phone){
+    public Map<String, String> findEmail(String nickname, String phone){
         Member member = memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
         if(!member.getPhone().equals(phone))
             throw new BusinessLogicException(MemberExceptionType.NOT_FOUND);
-        return member.getEmail();
+        Map<String, String> email = new HashMap<>();
+        email.put("email", member.getEmail());
+        return email;
     }
 
     /**
@@ -71,7 +76,7 @@ public class SearchMemberService {
 
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e){
-            e.printStackTrace();
+            throw new BusinessLogicException(MemberExceptionType.INTERNAL_SERVER_ERROR);
         }
 
         searchRedisRepository.saveCertificationNumber(member.getEmail(), code);
