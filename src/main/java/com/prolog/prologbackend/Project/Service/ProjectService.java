@@ -13,9 +13,11 @@ import com.prolog.prologbackend.Project.ExceptionType.ProjectExceptionType;
 import com.prolog.prologbackend.Project.Repository.ProjectRepository;
 import com.prolog.prologbackend.Project.Repository.ProjectStackRepository;
 import com.prolog.prologbackend.Project.Repository.ProjectStepRepository;
+import com.prolog.prologbackend.TeamMember.DTO.Response.ListTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
 import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
+import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ public class ProjectService {
     private final ProjectStepRepository projectStepRepository;
     private final ProjectStackRepository projectStackRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberService teamMemberService;
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
@@ -40,6 +43,15 @@ public class ProjectService {
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
         ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
+
+        List<TeamMember> teamMembers = teamMemberService.getListByProject(project);
+        List<ListTeamMemberDto> listTeamMemberDtos = new ArrayList<>();
+
+        for(TeamMember t: teamMembers){
+            listTeamMemberDtos.add(ListTeamMemberDto.of(t));
+        }
+
+        responseProjectDetailDTO.setTeamMembers(listTeamMemberDtos);
 
         return responseProjectDetailDTO;
     }

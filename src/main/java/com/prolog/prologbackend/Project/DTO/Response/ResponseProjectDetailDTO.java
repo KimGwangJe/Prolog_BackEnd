@@ -1,6 +1,8 @@
 package com.prolog.prologbackend.Project.DTO.Response;
 
 import com.prolog.prologbackend.Project.DTO.Request.RequestStep;
+import com.prolog.prologbackend.TeamMember.DTO.Response.ListTeamMemberDto;
+import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -46,4 +48,7 @@ public class ResponseProjectDetailDTO {
 
     @Schema(description = "프로젝트 단계 리스트입니다.", nullable = false, example = "리스트로 된 projectStep")
     private List<ResponseStep> step;
+
+    @Schema(description = "팀멤버 리스트입니다.", nullable = false, example = "리스트로 된 TeamMember")
+    private List<ListTeamMemberDto> teamMembers;
 }
