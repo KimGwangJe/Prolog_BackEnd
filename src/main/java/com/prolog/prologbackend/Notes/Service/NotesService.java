@@ -96,13 +96,12 @@ public class NotesService {
         TeamMember teamMember = teamMemberRepository.findById(requestNotesDTO.getMemberId())
                 .orElseThrow(() -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
 
-        Notes updateNotes = makeNotesEntity(requestNotesDTO,teamMember);
-
+        notes = makeNotesEntity(requestNotesDTO,teamMember);
 
         if(requestNotesDTO.getMemberId() == notes.getTeamMember().getMember().getId()){
             try{
-                notesRepository.save(updateNotes);
-                linkImagesToNotes(updateNotes.getContent(),updateNotes);
+                notesRepository.save(notes);
+                linkImagesToNotes(notes.getContent(),notes);
             } catch (Exception e){
                 throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
             }

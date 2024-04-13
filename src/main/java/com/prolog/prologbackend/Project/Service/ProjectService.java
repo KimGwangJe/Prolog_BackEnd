@@ -56,7 +56,7 @@ public class ProjectService {
                 () -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
 
         if(teamMember.getPart().equals("Leader")){
-            Project updatedProject = Project.builder()
+            project = Project.builder()
                     .projectId(project.getProjectId()) // 기존 프로젝트의 아이디 설정
                     .projectName(projectDetailDTO.getProjectName())
                     .startDate(projectDetailDTO.getStartedDate())
@@ -68,7 +68,7 @@ public class ProjectService {
 
             try{
                 // 프로젝트 업데이트 저장
-                projectRepository.save(updatedProject);
+                projectRepository.save(project);
 
                 // Step 정보 업데이트
                 updateSteps(projectDetailDTO.getStep(), project);
@@ -135,7 +135,7 @@ public class ProjectService {
                 () -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
 
         if(teamMember.getPart().equals("Leader")){
-            Project updatedProject = Project.builder()
+            project = Project.builder()
                     .projectId(project.getProjectId())
                     .projectName(project.getProjectName())
                     .startDate(project.getStartDate())
@@ -148,7 +148,7 @@ public class ProjectService {
 
             // 프로젝트 업데이트 저장
             try{
-                projectRepository.save(updatedProject);
+                projectRepository.save(project);
             } catch (Exception e){
                 throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
             }
