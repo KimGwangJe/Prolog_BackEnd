@@ -30,10 +30,9 @@ public class InvitationEmailService {
 
         Context context = new Context();
         context.setVariable("nickname", emailDTO.getNickname());
-        context.setVariable("message", "초대를 승락하기 위해서는 링크를 눌러주세요."); //이부분은 저희가 틀을 잡아서 보내는게 나을것 같습니다.
+        context.setVariable("message", "아래의 링크를 클릭하여 초대를 승락해주세요!"); //이부분은 저희가 틀을 잡아서 보내는게 나을것 같습니다.
         context.setVariable("link", redirectionLink+"/invitation"); // 리다이렉션 링크
         context.setVariable("data", "?userId="+emailDTO.getTargetId()+"&projectId="+emailDTO.getProjectId());
-        context.setVariable("linkName", "여기를 클릭해주세요"); // 위 링크를 덧씌울 텍스트
 
         String message = templateEngine.process("InviteEmail.html", context);
 

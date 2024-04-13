@@ -3,7 +3,7 @@ package com.prolog.prologbackend.TeamMember.Controller;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Service.MemberService;
 import com.prolog.prologbackend.Project.Domain.Project;
-import com.prolog.prologbackend.Project.Service.ProjectServiceImpl;
+import com.prolog.prologbackend.Project.Service.ProjectService;
 import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class TeamMemberController {
     private final TeamMemberService teamMemberService;
     private final MemberService memberService;
-    private final ProjectServiceImpl projectService;
+    private final ProjectService projectService;
 
     @Operation(summary = "팀멤버 등록 메서드")
     @ApiResponses(value = {

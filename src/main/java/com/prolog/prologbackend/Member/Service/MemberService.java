@@ -7,8 +7,8 @@ import com.prolog.prologbackend.Member.DTO.Request.MemberUpdateDto;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Repository.MemberRepository;
-import com.prolog.prologbackend.Notes.Service.NotesServiceImpl;
-import com.prolog.prologbackend.Project.Service.ProjectServiceImpl;
+import com.prolog.prologbackend.Notes.Service.NotesService;
+import com.prolog.prologbackend.Project.Service.ProjectService;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TeamMemberService teamMemberService;
-    private final ProjectServiceImpl projectService;
-    private final NotesServiceImpl notesService;
+    private final ProjectService projectService;
+    private final NotesService notesService;
     private final AmazonS3Client amazonS3Client;
     @Value("${S3Bucket}")
     private String BUCKET;

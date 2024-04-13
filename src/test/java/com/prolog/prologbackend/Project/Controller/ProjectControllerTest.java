@@ -7,8 +7,6 @@ import com.prolog.prologbackend.Member.Domain.MemberStatus;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Request.RequestStep;
 import com.prolog.prologbackend.Project.Service.ProjectService;
-import com.prolog.prologbackend.Security.Jwt.JwtProvider;
-import com.prolog.prologbackend.Security.Jwt.JwtType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

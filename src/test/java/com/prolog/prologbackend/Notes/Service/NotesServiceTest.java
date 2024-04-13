@@ -38,7 +38,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
-class NotesServiceImplTest {
+class NotesServiceTest {
 
     @Mock
     private NotesRepository notesRepository;
@@ -56,7 +56,7 @@ class NotesServiceImplTest {
     private TeamMemberRepository teamMemberRepository;
 
     @InjectMocks
-    private NotesServiceImpl notesService;
+    private NotesService notesService;
 
     @Value("${S3Bucket}")
     private String bucket;
