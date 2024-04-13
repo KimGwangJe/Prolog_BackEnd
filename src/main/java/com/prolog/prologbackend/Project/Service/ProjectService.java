@@ -172,8 +172,8 @@ public class ProjectService {
 
         List<ProjectStack> stackImages = projectStackRepository.findAll();
 
-        List<ResponseStackImageListDTO.ResponseStackImageDTO> stackImageDTOList = stackImages.stream().map(stackImage -> {
-            ResponseStackImageListDTO.ResponseStackImageDTO stackImageDTO = new ResponseStackImageListDTO.ResponseStackImageDTO();
+        List<ResponseStackImageDTO> stackImageDTOList = stackImages.stream().map(stackImage -> {
+            ResponseStackImageDTO stackImageDTO = new ResponseStackImageDTO();
             stackImageDTO.setStackId(stackImage.getStackId());
             stackImageDTO.setStackName(stackImage.getStackName());
             stackImageDTO.setImage(stackImage.getImage());

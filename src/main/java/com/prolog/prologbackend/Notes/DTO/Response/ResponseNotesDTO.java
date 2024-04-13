@@ -14,6 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(title = "NotesResponse : 일지 반환 DTO")
 public class ResponseNotesDTO {
 
     @Schema(description = "일지를 구분하는 번호입니다.", example = "1")

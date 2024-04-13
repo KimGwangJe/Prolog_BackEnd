@@ -10,6 +10,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@Schema(title = "ProjectStepRequest : 프로젝트 단계 저장 및 수정 DTO")
 public class RequestStep {
 
     @NotBlank

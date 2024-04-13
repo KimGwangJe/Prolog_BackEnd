@@ -15,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Schema(title = "ProjectResponse : 프로젝트 반환 DTO")
 public class ResponseProjectDetailDTO {
 
     @Schema(description = "프로젝트를 구분하는 번호입니다.", nullable = false, example = "1")

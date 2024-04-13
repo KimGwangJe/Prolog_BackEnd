@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.util.Date;
 
+@Schema(title = "NotesRequest : 일지 등록 및 수정 DTO")
 @Getter
 @Setter
 public class RequestNotesDTO {
