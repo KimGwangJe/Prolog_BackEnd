@@ -79,7 +79,7 @@ public class MemberService {
         List<Long> projectIds = teamMembers.stream().filter(t -> t.getPart().contains("Leader"))
                         .map(t -> t.getProject().getProjectId()).toList();
         for(Long projectId : projectIds){
-            projectService.deleteProject(projectId,member.getId());
+            projectService.deleteProject(projectId,member);
         }
 
         List<Long> teamMembersIds = teamMembers.stream().map(t -> t.getId()).toList();

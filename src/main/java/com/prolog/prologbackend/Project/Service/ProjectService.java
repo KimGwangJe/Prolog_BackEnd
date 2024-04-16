@@ -35,7 +35,6 @@ public class ProjectService {
     private final ProjectStackRepository projectStackRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final TeamMemberService teamMemberService;
-    private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
     public ResponseProjectDetailDTO getProjectInfo(Long projectId) {
@@ -58,8 +57,7 @@ public class ProjectService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean projectUpdate(RequestProjectDetailDTO projectDetailDTO, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElse(null);
+    public boolean updateProject(RequestProjectDetailDTO projectDetailDTO, Member member) {
 
         Project project = projectRepository.findById(projectDetailDTO.getProjectId()).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
@@ -95,8 +93,7 @@ public class ProjectService {
 
 
     @Transactional(readOnly = true)
-    public ProjectListResponseDTO getProjectList(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElse(null);
+    public ProjectListResponseDTO getProjectList(Member member) {
         List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
 
         List<ResponseProjectDetailDTO> projectList = new ArrayList<>();
@@ -137,9 +134,7 @@ public class ProjectService {
         }
     }
 
-    public void deleteProject(Long projectId,Long memberId) {
-        Member member = memberRepository.findById(memberId).orElse(null);
-
+    public void deleteProject(Long projectId,Member member) {
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
