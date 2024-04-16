@@ -65,7 +65,7 @@ public class ProjectController {
             throw new BusinessLogicException(ProjectExceptionType.INVALID_INPUT_VALUE);
         }
 
-        projectService.projectUpdate(requestProjectDetailDTO,member.getId());
+        projectService.updateProject(requestProjectDetailDTO,member);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -79,10 +79,9 @@ public class ProjectController {
                     content = @Content(schema = @Schema(implementation = Void.class)))
     })
     public ResponseEntity<ProjectListResponseDTO> getProjectList(
-            @Parameter(name = "memberId", description = "멤버를 구분하는 ID.", required = true)
-            @RequestParam(name = "memberId", required = false) Long memberId
+            @AuthenticationPrincipal Member member
     ){
-        ProjectListResponseDTO projectList = projectService.getProjectList(memberId);
+        ProjectListResponseDTO projectList = projectService.getProjectList(member);
 
         if (projectList == null || projectList.getProjectList().isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(projectList);
@@ -126,7 +125,7 @@ public class ProjectController {
         if(Objects.isNull(projectId) || Objects.isNull(member.getId())){
             throw new BusinessLogicException(ProjectExceptionType.INVALID_INPUT_VALUE);
         }
-        projectService.deleteProject(projectId,member.getId());
+        projectService.deleteProject(projectId,member);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

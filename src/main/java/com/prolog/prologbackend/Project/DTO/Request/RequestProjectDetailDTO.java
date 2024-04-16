@@ -15,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Schema(title = "ProjectRequest : 프로젝트 저장 및 수정 DTO")
 public class RequestProjectDetailDTO {
     @Schema(description = "프로젝트를 구분하는 번호입니다. 생성시에는 Null", nullable = true, example = "1")
     private Long projectId;

@@ -14,6 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Schema(title = "InvitationEmail : 프로젝트 초대 이메일 전송 DTO")
 public class InvitationEmailDTO {
 
     @Email
