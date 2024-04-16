@@ -49,18 +49,10 @@ public class TeamMemberService {
      */
     @Transactional
     public void removeTeamMember(Member member, Long teamId){
-        TeamMember teamMember = teamMemberRepository.findById(teamId).orElseThrow(() -> {
-            throw new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND);
-        });
+        TeamMember teamMember = getEntityById(teamId);
 
         if(teamMember.getMember().getId() != member.getId()) {
-            String part = teamMemberRepository.findByMemberAndProject(member, teamMember.getProject())
-                    .orElseThrow(() -> {
-                        throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
-                    }).getPart();
-
-            if (!Arrays.stream(part.split(",")).toList().contains(Part.Leader.toString()))
-                throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
+            getEntityByMemberAndProject(member, teamMember.getProject());
         }
 
         teamMemberRepository.delete(teamMember);
@@ -102,16 +94,31 @@ public class TeamMemberService {
     }
 
     /**
-     * 특정 회원의 특정 프로젝트와 일치하는 팀멤버 엔티티를 반환
+     * 특정 회원의 특정 프로젝트와 일치하는 팀멤버 엔티티 조회
      * : 특정 회원의 일지 목록 조회 시 호출
      *
      * @param member : 회원 기준으로 팀멤버 조회
      * @param project : 프로젝트 기준으로 팀멤버 조회
-     * @return : 조회된 팀멤버 엔티티의 목록 반환
      */
-    public TeamMember getEntityByMemberAndProject(Member member, Project project){
-        return teamMemberRepository.findByMemberAndProject(member, project).orElseThrow(
-                () -> { throw new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND); }
-        );
+    public void getEntityByMemberAndProject(Member member, Project project){
+        String part = teamMemberRepository.findByMemberAndProject(member, project)
+                .orElseThrow(() -> {
+                    throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
+                }).getPart();
+
+        if (!Arrays.stream(part.split(",")).toList().contains(Part.Leader.toString()))
+            throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
+    }
+
+    /**
+     * 팀멤버 ID로 엔티티 조회
+     *
+     * @param teamMemberId : 조회할 팀멤버 id
+     * @return : 조회된 팀멤버 엔티티 반환
+     */
+    public TeamMember getEntityById(Long teamMemberId){
+        return teamMemberRepository.findById(teamMemberId).orElseThrow(() -> {
+            throw new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND);
+        });
     }
 }
