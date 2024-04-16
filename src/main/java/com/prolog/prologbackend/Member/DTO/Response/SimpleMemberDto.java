@@ -11,7 +11,7 @@ public class SimpleMemberDto {
     private String nickName;
     @Schema(description = "회원 프로필 이미지 링크", example = "profileImageS3Link")
     private String profileImage;
-    @Schema(description = "회원 email", example = "kimLeeChoi@mail.com")
+    @Schema(description = "회원 email", example = "kimLeeChoi@prologmail.com")
     private String email;
     @Schema(description = "회원 phone number", example = "010-1234-5678")
     private String phone;

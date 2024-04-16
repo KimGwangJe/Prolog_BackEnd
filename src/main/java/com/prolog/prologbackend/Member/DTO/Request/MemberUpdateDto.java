@@ -9,7 +9,7 @@ import lombok.Getter;
 @Schema(title = "MemberRequest : 회원 정보 수정 DTO")
 @Getter
 public class MemberUpdateDto {
-    @Schema(description = "회원 email. 변경을 원하는 경우 새로운 email이 담김", example = "kimLeeChoi@mail.com")
+    @Schema(description = "회원 email. 변경을 원하는 경우 새로운 email이 담김", example = "kimLeeChoi@prologmail.com")
     @Email
     private String email;
     @Schema(description = "회원 password. 변경을 원하는 경우 새로운 password가 담김", example = "password1234")

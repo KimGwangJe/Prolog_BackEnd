@@ -10,7 +10,7 @@ import lombok.Getter;
 @Schema(title = "MemberRequest : 일반 회원 가입 DTO")
 @Getter
 public class MemberJoinDto {
-    @Schema(description = "사용할 email", example = "kimLeeChoi@mail.com")
+    @Schema(description = "사용할 email", example = "kimLeeChoi@prologmail.com")
     @Email
     private String email;
     @Schema(description = "사용할 password", example = "password1234")

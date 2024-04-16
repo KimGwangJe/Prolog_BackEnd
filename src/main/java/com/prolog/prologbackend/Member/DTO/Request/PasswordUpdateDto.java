@@ -8,7 +8,7 @@ import lombok.Getter;
 @Schema(title = "MemberRequest : 비밀번호 재발급 DTO")
 @Getter
 public class PasswordUpdateDto {
-    @Schema(description = "정보 확인에 사용될 email", example = "kimLeeChoi@mail.com")
+    @Schema(description = "정보 확인에 사용될 email", example = "kimLeeChoi@prologmail.com")
     @Email
     private String email;
     @Schema(description = "회원의 새로운 password", example = "password1234")
