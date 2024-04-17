@@ -1,5 +1,6 @@
 package com.prolog.prologbackend.Member.Controller;
 
+import com.prolog.prologbackend.Exception.ErrorResponse;
 import com.prolog.prologbackend.Member.DTO.Request.PasswordUpdateDto;
 import com.prolog.prologbackend.Member.Service.SearchMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,72 +24,79 @@ import org.springframework.web.bind.annotation.*;
 public class SearchMemberController {
     private final SearchMemberService searchMemberService;
 
-    @Operation(summary = "이메일 찾기 메서드")
+    @Operation(summary = "이메일 찾기 메서드", description = "사용자 정보를 이용하여 올바른 사용자에 한해 이메일을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok : 이메일 찾기 완료"),
             @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
-                    content = @Content(schema = @Schema(implementation=Void.class)))
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
     })
-    @Parameter(name = "회원 닉네임", description = "회원 정보 확인을 위한 닉네임", example = "kimLeeChoi21", required = true)
-    @Parameter(name = "회원 핸드폰 번호", description = "회원 정보 확인을 위한 핸드폰 번호", example = "010-1234-5678", required = true)
     @GetMapping("/email")
-    ResponseEntity searchEmail(@RequestParam @NotBlank String nickname, @RequestParam @NotBlank String phone){
+    ResponseEntity searchEmail(
+            @Parameter(description = "회원 정보 확인을 위한 닉네임", example = "kimLeeChoi21", required = true)
+            @RequestParam @NotBlank String nickname,
+            @Parameter(description = "회원 정보 확인을 위한 핸드폰 번호", example = "010-1234-5678", required = true)
+            @RequestParam @NotBlank String phone){
         return ResponseEntity.status(HttpStatus.OK).body(searchMemberService.findEmail(nickname, phone));
     }
 
-    @Operation(summary = "인증 번호 발급 메서드")
+    @Operation(summary = "인증 번호 발급 메서드", description = "비밀 번호 재설정을 위한 본인 인증 번호를 이메일로 발급합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created : 인증 번호 발급 후 전송 완료"),
             @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
                     content = @Content(schema = @Schema(implementation=Void.class)))
     })
-    @Parameter(name = "회원 이메일", description = "인증 번호를 발급할 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
     @PostMapping("/password/certification")
-    ResponseEntity issueCertificationNumber(@RequestParam @Email String email){
+    ResponseEntity<Void> issueCertificationNumber(
+            @Parameter(description = "인증 번호를 발급할 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
+            @RequestParam @Email String email){
         searchMemberService.issueCertificationNumber(email);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "인증 번호 확인 메서드")
+    @Operation(summary = "인증 번호 확인 메서드", description = "비밀 번호 재설정을 위해 전송된 인증 번호를 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok : 인증 성공"),
             @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
-                    content = @Content(schema = @Schema(implementation=Void.class)))
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
     })
-    @Parameter(name = "회원 이메일", description = "인증 번호를 발급한 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
-    @Parameter(name = "인증 번호", description = "발급받은 인증 번호", example = "4865", required = true)
     @GetMapping("/password/certification")
-    ResponseEntity checkCertificationNumber(@RequestParam @Email String email, @RequestParam int code){
+    ResponseEntity<Void> checkCertificationNumber(
+            @Parameter(description = "인증 번호를 발급한 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
+            @RequestParam @Email String email,
+            @Parameter(description = "발급받은 인증 번호", example = "4865", required = true)
+            @RequestParam int code){
         searchMemberService.checkCertificationNumber(email, code);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Operation(summary = "인증 여부 확인 메서드")
+    @Operation(summary = "인증 여부 확인 메서드", description = "비밀번호 재설정을 위한 본인 인증 여부를 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok : 인증 여부 확인됨"),
             @ApiResponse(responseCode = "400", description = "Bad Request : 닉네임이 일치하지 않음",
-                    content = @Content(schema = @Schema(implementation=Void.class))),
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
-                    content = @Content(schema = @Schema(implementation=Void.class)))
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
     })
-    @Parameter(name = "회원 이메일", description = "회원 정보 확인을 위한 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
-    @Parameter(name = "회원 닉네임", description = "회원 정보 확인을 위한 닉네임", example = "kimLeeChoi21", required = true)
     @GetMapping("/password")
-    ResponseEntity checkCertificationStatus(@RequestParam @Email String email, @RequestParam String nickname){
+    ResponseEntity<Void> checkCertificationStatus(
+            @Parameter(description = "회원 정보 확인을 위한 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
+            @RequestParam @Email String email,
+            @Parameter(description = "회원 정보 확인을 위한 닉네임", example = "kimLeeChoi21", required = true)
+            @RequestParam String nickname){
         searchMemberService.checkCertificationStatus(nickname, email);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Operation(summary = "비밀번호 재설정 메서드")
+    @Operation(summary = "비밀번호 재설정 메서드", description = "새로운 비밀번호를 입력받아 재설정 합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok : 비밀번호 변경 성공"),
             @ApiResponse(responseCode = "401", description = "Unauthorized : 이메일 인증 필요",
-                    content = @Content(schema = @Schema(implementation=Void.class))),
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
-                    content = @Content(schema = @Schema(implementation=Void.class)))
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
     })
     @PatchMapping("/password")
-    ResponseEntity updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto){
+    ResponseEntity<Void> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto){
         searchMemberService.updatePassword(passwordUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

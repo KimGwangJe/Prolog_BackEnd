@@ -36,7 +36,7 @@ public class TeamMemberController {
                     content = @Content(schema = @Schema(implementation=Void.class)))
     })
     @PostMapping("/teamMembers")
-    public ResponseEntity createTeamMember(@Valid @RequestBody CreateTeamMemberDto createTeamMemberDto){
+    public ResponseEntity<Void> createTeamMember(@Valid @RequestBody CreateTeamMemberDto createTeamMemberDto){
         Project project = projectService.getProject(createTeamMemberDto.getProjectId());
         Member member = memberService.getMember(createTeamMemberDto.getMemberId());
         teamMemberService.createTeamMember(project, member, createTeamMemberDto.getParts());
@@ -51,10 +51,11 @@ public class TeamMemberController {
             @ApiResponse(responseCode = "404", description = "Not Found : 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation=Void.class)))
     })
-    @Schema(description = "Path Variable. 삭제할 팀멤버 id", example = "2")
     @DeleteMapping("/api/teamMembers/{team-id}")
-    public ResponseEntity removeTeamMember(@AuthenticationPrincipal Member member,
-                                           @PathVariable("team-id") Long teamId){
+    public ResponseEntity<Void> removeTeamMember(
+            @AuthenticationPrincipal Member member,
+            @Schema(description = "Path Variable. 삭제할 팀멤버 id", example = "2")
+            @PathVariable("team-id") Long teamId){
         teamMemberService.removeTeamMember(member, teamId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
