@@ -16,7 +16,7 @@ import com.prolog.prologbackend.Notes.Repository.ImageRepository;
 import com.prolog.prologbackend.Notes.Repository.NotesRepository;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
-import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
+import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class NotesService {
 
     private final AmazonS3 s3Client;
 
-    private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberService teamMemberService;
 
     @Value("${S3Bucket}")
     private String bucket;
@@ -56,8 +56,8 @@ public class NotesService {
         List<Notes> notesList = new ArrayList<>(notesRepository.findAllByTeamMemberId(memberId));
         ResponseNotesListDTO responseNotesListDTO = new ResponseNotesListDTO();
         List<ResponseNotesDTO> list = new ArrayList<>();
-        for(int i = 0; i < notesList.size(); i++){
-            ResponseNotesDTO responseNotesDTO = makeResponseNotesDTO(notesList.get(i));
+        for(Notes notes : notesList){
+            ResponseNotesDTO responseNotesDTO = makeResponseNotesDTO(notes);
             list.add(responseNotesDTO);
         }
         responseNotesListDTO.setNotesList(list);
@@ -68,14 +68,12 @@ public class NotesService {
     public ResponseNotesDTO getNotes(Long notesId) {
         Notes notes = notesRepository.findById(notesId).orElseThrow(
                 () -> new BusinessLogicException(NotesExceptionType.NOTES_NOT_FOUND));
-        ResponseNotesDTO responseNotesDTO = makeResponseNotesDTO(notes);
-        return responseNotesDTO;
+        return makeResponseNotesDTO(notes);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Long createNotes(RequestNotesDTO requestNotesDTO) {
-        TeamMember teamMember = teamMemberRepository.findById(requestNotesDTO.getMemberId())
-                .orElseThrow(() -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
+        TeamMember teamMember = teamMemberService.getEntityById(requestNotesDTO.getMemberId());
 
         Notes notes = makeNotesEntity(requestNotesDTO,teamMember);
 
@@ -93,8 +91,7 @@ public class NotesService {
         Notes notes = notesRepository.findById(requestNotesDTO.getNotesId()).orElseThrow(
                 () -> new BusinessLogicException(NotesExceptionType.NOTES_NOT_FOUND));
 
-        TeamMember teamMember = teamMemberRepository.findById(requestNotesDTO.getMemberId())
-                .orElseThrow(() -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
+        TeamMember teamMember = teamMemberService.getEntityById(requestNotesDTO.getMemberId());
 
         notes = makeNotesEntity(requestNotesDTO,teamMember);
 
@@ -137,6 +134,7 @@ public class NotesService {
         String contentType = file.getContentType();
 
         //확장자 명이 존재하지 않을 경우 처리 X
+        assert contentType != null;
         if(contentType.contains("image/jpeg") || contentType.contains("image/jpg"))
             originalFileExtension = ".jpg";
         else if(contentType.contains("image/png"))
@@ -147,14 +145,13 @@ public class NotesService {
         String new_file_name = current_date + System.nanoTime() + originalFileExtension;
 
         try {
-            String fileUrl = new_file_name;
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
             metadata.setContentLength(file.getSize());
             amazonS3Client.putObject(bucket,new_file_name,file.getInputStream(),metadata);
-            URL url = s3Client.getUrl(bucket,fileUrl);
+            URL url = s3Client.getUrl(bucket, new_file_name);
             Image image = Image.builder()
-                    .imageName(fileUrl)
+                    .imageName(new_file_name)
                     .imageUrl(String.valueOf(url))
                     .build();
             imageRepository.save(image);
@@ -203,6 +200,7 @@ public class NotesService {
                 continue;
             }
             // 이미 노트와 관련된 이미지가 아니거나 HTML에 없는 경우, 새로운 이미지 생성 및 관계 맺기
+            assert image != null;
             imageRepository.save(Image.builder()
                     .imageId(image.getImageId())
                     .imageUrl(image.getImageUrl())
@@ -247,7 +245,7 @@ public class NotesService {
     }
 
     public Notes makeNotesEntity(RequestNotesDTO requestNotesDTO, TeamMember teamMember){
-        Notes notes = Notes.builder()
+        return Notes.builder()
                 .notesId(requestNotesDTO.getNotesId())
                 .title(requestNotesDTO.getTitle())
                 .createdDate(new Date())
@@ -258,6 +256,5 @@ public class NotesService {
                 .summary(requestNotesDTO.getSummary())
                 .teamMember(teamMember)
                 .build();
-        return notes;
     }
 }

@@ -51,7 +51,7 @@ public class NotesController {
             throw new BusinessLogicException(NotesExceptionType.INVALID_INPUT_VALUE);
         }
         ResponseNotesListDTO notesList = notesService.getNotesList(teamMemberId);
-        if(notesList.getNotesList().isEmpty() || notesList.getNotesList() == null){
+        if(notesList.getNotesList().isEmpty()){
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.status(HttpStatus.OK).body(notesList);
