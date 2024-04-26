@@ -54,12 +54,14 @@ public class NotesService {
     @Transactional(readOnly = true)
     public ResponseNotesListDTO getNotesList(Long memberId) {
         List<Notes> notesList = new ArrayList<>(notesRepository.findAllByTeamMemberId(memberId));
-        ResponseNotesListDTO responseNotesListDTO = new ResponseNotesListDTO();
         List<ResponseNotesDTO> list = new ArrayList<>();
+
         for(Notes notes : notesList){
             ResponseNotesDTO responseNotesDTO = makeResponseNotesDTO(notes);
             list.add(responseNotesDTO);
         }
+
+        ResponseNotesListDTO responseNotesListDTO = new ResponseNotesListDTO();
         responseNotesListDTO.setNotesList(list);
         return responseNotesListDTO;
     }
@@ -88,12 +90,9 @@ public class NotesService {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateNotes(RequestNotesDTO requestNotesDTO) {
-        Notes notes = notesRepository.findById(requestNotesDTO.getNotesId()).orElseThrow(
-                () -> new BusinessLogicException(NotesExceptionType.NOTES_NOT_FOUND));
-
         TeamMember teamMember = teamMemberService.getEntityById(requestNotesDTO.getMemberId());
 
-        notes = makeNotesEntity(requestNotesDTO,teamMember);
+        Notes notes = makeNotesEntity(requestNotesDTO,teamMember);
 
         if(requestNotesDTO.getMemberId() == notes.getTeamMember().getMember().getId()){
             try{
@@ -150,11 +149,10 @@ public class NotesService {
             metadata.setContentLength(file.getSize());
             amazonS3Client.putObject(bucket,new_file_name,file.getInputStream(),metadata);
             URL url = s3Client.getUrl(bucket, new_file_name);
-            Image image = Image.builder()
+            imageRepository.save(Image.builder()
                     .imageName(new_file_name)
                     .imageUrl(String.valueOf(url))
-                    .build();
-            imageRepository.save(image);
+                    .build());
             return url;
         } catch (IOException e) {
             throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
@@ -218,30 +216,16 @@ public class NotesService {
     }
 
     public ResponseNotesDTO makeResponseNotesDTO(Notes notes){
-        ResponseNotesDTO responseNotesDTO;
-        if(notes.getNotesId() != null){
-            responseNotesDTO = ResponseNotesDTO.builder()
-                    .notesId(notes.getNotesId())
-                    .title(notes.getTitle())
-                    .content(notes.getContent())
-                    .createdDate(notes.getCreatedDate())
-                    .modifiedDate(notes.getModifiedDate())
-                    .date(notes.getDate())
-                    .type(NotesType.valueOf(notes.getType()))
-                    .summary(notes.getSummary())
-                    .build();
-        } else {
-            responseNotesDTO = ResponseNotesDTO.builder()
-                    .title(notes.getTitle())
-                    .content(notes.getContent())
-                    .createdDate(notes.getCreatedDate())
-                    .modifiedDate(notes.getModifiedDate())
-                    .date(notes.getDate())
-                    .type(NotesType.valueOf(notes.getType()))
-                    .summary(notes.getSummary())
-                    .build();
-        }
-        return responseNotesDTO;
+        return ResponseNotesDTO.builder()
+                .notesId(notes.getNotesId())
+                .title(notes.getTitle())
+                .content(notes.getContent())
+                .createdDate(notes.getCreatedDate())
+                .modifiedDate(notes.getModifiedDate())
+                .date(notes.getDate())
+                .type(NotesType.valueOf(notes.getType()))
+                .summary(notes.getSummary())
+                .build();
     }
 
     public Notes makeNotesEntity(RequestNotesDTO requestNotesDTO, TeamMember teamMember){

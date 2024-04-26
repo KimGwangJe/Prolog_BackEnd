@@ -70,4 +70,10 @@ public class Project {
         this.modifiedDate = modifiedDate;
         this.isDeleted = isDeleted;
     }
+
+    // 프로젝트 soft delete
+    public void deleteProject(){
+        this.isDeleted = Boolean.TRUE;
+        this.modifiedDate = new Date();
+    }
 }

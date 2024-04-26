@@ -37,8 +37,6 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
-        ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
-
         List<TeamMember> teamMembers = teamMemberService.getListByProject(project);
         List<ListTeamMemberDto> listTeamMemberDtos = new ArrayList<>();
 
@@ -46,6 +44,7 @@ public class ProjectService {
             listTeamMemberDtos.add(ListTeamMemberDto.of(t));
         }
 
+        ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
         responseProjectDetailDTO.setTeamMembers(listTeamMemberDtos);
 
         return responseProjectDetailDTO;
@@ -91,8 +90,7 @@ public class ProjectService {
 
         for (TeamMember teamMember : teamMembers) {
             Project project = teamMember.getProject();
-            ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
-            projectList.add(responseProjectDetailDTO);
+            projectList.add(createResponseProjectDetailDTO(project));
         }
 
         ProjectListResponseDTO projectListResponseDTO = new ProjectListResponseDTO();
@@ -131,17 +129,8 @@ public class ProjectService {
 
         teamMemberService.getEntityByMemberAndProject(member,project);
 
-        project = Project.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .startDate(project.getStartDate())
-                .endedDate(project.getEndedDate())
-                .description(project.getDescription())
-                .stack(project.getStack())
-                .modifiedDate(new Date()) // 수정 날짜를 현재 날짜로 업데이트
-                .isDeleted(true) // 삭제되었음을 표시
-                .build();
-
+        // 프로젝트의 isDeleted와 modifiedDate 수정
+        project.deleteProject();
             // 프로젝트 업데이트 저장
         try{
             projectRepository.save(project);
