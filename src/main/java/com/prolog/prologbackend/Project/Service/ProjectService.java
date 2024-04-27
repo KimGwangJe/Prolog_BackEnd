@@ -89,8 +89,10 @@ public class ProjectService {
         List<ResponseProjectDetailDTO> projectList = new ArrayList<>();
 
         for (TeamMember teamMember : teamMembers) {
-            Project project = teamMember.getProject();
-            projectList.add(createResponseProjectDetailDTO(project));
+            if(!teamMember.getProject().getIsDeleted()){
+                Project project = teamMember.getProject();
+                projectList.add(createResponseProjectDetailDTO(project));
+            }
         }
 
         ProjectListResponseDTO projectListResponseDTO = new ProjectListResponseDTO();
@@ -123,6 +125,13 @@ public class ProjectService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteProjectAndProjectStep(List<Long> projectIds){
+        projectStepRepository.deleteAllByProjectIdIn(projectIds);
+        projectRepository.deleteAllByProjectIdIn(projectIds);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProject(Long projectId,Member member) {
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
