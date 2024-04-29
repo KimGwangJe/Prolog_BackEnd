@@ -26,7 +26,7 @@ public class ProjectStep {
     @Column(name = "ended_date")
     private Date endedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 

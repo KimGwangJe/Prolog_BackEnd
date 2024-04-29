@@ -2,7 +2,6 @@ package com.prolog.prologbackend.Project.Service;
 
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.Domain.Member;
-import com.prolog.prologbackend.Member.Repository.MemberRepository;
 import com.prolog.prologbackend.Project.DTO.Request.RequestProjectDetailDTO;
 import com.prolog.prologbackend.Project.DTO.Request.RequestStep;
 import com.prolog.prologbackend.Project.DTO.Response.*;
@@ -15,8 +14,6 @@ import com.prolog.prologbackend.Project.Repository.ProjectStackRepository;
 import com.prolog.prologbackend.Project.Repository.ProjectStepRepository;
 import com.prolog.prologbackend.TeamMember.DTO.Response.ListTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
-import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
-import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,15 +30,12 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectStepRepository projectStepRepository;
     private final ProjectStackRepository projectStackRepository;
-    private final TeamMemberRepository teamMemberRepository;
     private final TeamMemberService teamMemberService;
 
     @Transactional(readOnly = true)
     public ResponseProjectDetailDTO getProjectInfo(Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
-
-        ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
 
         List<TeamMember> teamMembers = teamMemberService.getListByProject(project);
         List<ListTeamMemberDto> listTeamMemberDtos = new ArrayList<>();
@@ -50,6 +44,7 @@ public class ProjectService {
             listTeamMemberDtos.add(ListTeamMemberDto.of(t));
         }
 
+        ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
         responseProjectDetailDTO.setTeamMembers(listTeamMemberDtos);
 
         return responseProjectDetailDTO;
@@ -57,16 +52,14 @@ public class ProjectService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateProject(RequestProjectDetailDTO projectDetailDTO, Member member) {
+    public void updateProject(RequestProjectDetailDTO projectDetailDTO, Member member) {
 
         Project project = projectRepository.findById(projectDetailDTO.getProjectId()).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
-        TeamMember teamMember = teamMemberRepository.findByMemberAndProject(member,project).orElseThrow(
-                () -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
+        teamMemberService.getEntityByMemberAndProject(member,project);
 
-        if(teamMember.getPart().equals("Leader")){
-            project = Project.builder()
+        project = Project.builder()
                     .projectId(project.getProjectId()) // 기존 프로젝트의 아이디 설정
                     .projectName(projectDetailDTO.getProjectName())
                     .startDate(projectDetailDTO.getStartedDate())
@@ -85,23 +78,21 @@ public class ProjectService {
             } catch(Exception e){
                 throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
             }
-        }else {
-            throw new BusinessLogicException(TeamMemberExceptionType.FORBIDDEN);
-        }
-        return true; // 성공적으로 업데이트됨
+
     }
 
 
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getProjectList(Member member) {
-        List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
+        List<TeamMember> teamMembers = teamMemberService.getListByMember(member);
 
         List<ResponseProjectDetailDTO> projectList = new ArrayList<>();
 
         for (TeamMember teamMember : teamMembers) {
-            Project project = teamMember.getProject();
-            ResponseProjectDetailDTO responseProjectDetailDTO = createResponseProjectDetailDTO(project);
-            projectList.add(responseProjectDetailDTO);
+            if(!teamMember.getProject().getIsDeleted()){
+                Project project = teamMember.getProject();
+                projectList.add(createResponseProjectDetailDTO(project));
+            }
         }
 
         ProjectListResponseDTO projectListResponseDTO = new ProjectListResponseDTO();
@@ -134,32 +125,28 @@ public class ProjectService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteProjectAndProjectStep(List<Long> projectIds){
+        projectStepRepository.deleteAllByProjectIdIn(projectIds);
+        projectRepository.deleteAllByProjectIdIn(projectIds);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProject(Long projectId,Member member) {
         Project project = projectRepository.findById(projectId).orElseThrow(() ->
                 new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND));
 
-        TeamMember teamMember = teamMemberRepository.findByMemberAndProject(member,project).orElseThrow(
-                () -> new BusinessLogicException(TeamMemberExceptionType.NOT_FOUND));
+        teamMemberService.getEntityByMemberAndProject(member,project);
 
-        if(teamMember.getPart().equals("Leader")){
-            project = Project.builder()
-                    .projectId(project.getProjectId())
-                    .projectName(project.getProjectName())
-                    .startDate(project.getStartDate())
-                    .endedDate(project.getEndedDate())
-                    .description(project.getDescription())
-                    .stack(project.getStack())
-                    .modifiedDate(new Date()) // 수정 날짜를 현재 날짜로 업데이트
-                    .isDeleted(true) // 삭제되었음을 표시
-                    .build();
-
+        // 프로젝트의 isDeleted와 modifiedDate 수정
+        project.deleteProject();
             // 프로젝트 업데이트 저장
-            try{
-                projectRepository.save(project);
-            } catch (Exception e){
-                throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
-            }
+        try{
+            projectRepository.save(project);
+        } catch (Exception e){
+            throw new BusinessLogicException(ProjectExceptionType.PROJECT_SAVE_ERROR);
         }
+
     }
 
     public ResponseStackImageListDTO getStackImage() {
@@ -284,7 +271,7 @@ public class ProjectService {
     // 팀멤버 생성 시 프로젝트를 조회하기 위한 메서드
     public Project getProject(Long projectId){
         return projectRepository.findById(projectId).orElseThrow(
-                () -> { throw new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND); }
+                () -> new BusinessLogicException(ProjectExceptionType.PROJECT_NOT_FOUND)
         );
     }
 }
