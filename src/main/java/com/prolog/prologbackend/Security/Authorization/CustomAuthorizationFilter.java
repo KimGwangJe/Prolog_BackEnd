@@ -38,6 +38,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         } else {
             try {
                 String token = jwtProvider.substringToken(request.getHeader("Token"));
+                if(token == null)
+                    throw new BusinessLogicException(SecurityExceptionType.BAD_REQUEST);
+
                 Claims claims = jwtProvider.parseToken(token);
                 String email = jwtProvider.getEmail(claims);
 

@@ -1,6 +1,7 @@
 package com.prolog.prologbackend.Security.Authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Exception.ErrorResponse;
 import com.prolog.prologbackend.Exception.ExceptionType;
 import com.prolog.prologbackend.Member.Domain.Member;
@@ -35,6 +36,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try{
+            if(!request.getMethod().equals("POST"))
+                throw new BusinessLogicException(SecurityExceptionType.METHOD_NOT_ALLOWED);
+
             ObjectMapper om = new ObjectMapper();
             Member member = om.readValue(request.getInputStream(), Member.class);
 
@@ -42,8 +46,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             Authentication authResult = this.getAuthenticationManager().authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authResult);
             return authResult;
-        } catch(IOException e) {
-            e.printStackTrace();
+        } catch(IOException exception) {
+            exception.printStackTrace();
+        } catch (BusinessLogicException exception) {
+            setErrorResponse(response, exception.getExceptionType());
         }
         return null;
     }
