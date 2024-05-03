@@ -1,11 +1,8 @@
 package com.prolog.prologbackend.TeamMember.Controller;
 
 import com.prolog.prologbackend.Member.Domain.Member;
-import com.prolog.prologbackend.Member.Service.MemberService;
-import com.prolog.prologbackend.Project.Domain.Project;
-import com.prolog.prologbackend.Project.Service.ProjectService;
 import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
-import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
+import com.prolog.prologbackend.TeamMember.Service.TeamMemberFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,9 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class TeamMemberController {
-    private final TeamMemberService teamMemberService;
-    private final MemberService memberService;
-    private final ProjectService projectService;
+    private final TeamMemberFacadeService teamMemberFacadeService;
 
     @Operation(summary = "팀멤버 등록 메서드")
     @ApiResponses(value = {
@@ -37,9 +32,7 @@ public class TeamMemberController {
     })
     @PostMapping("/teamMembers")
     public ResponseEntity<Void> createTeamMember(@Valid @RequestBody CreateTeamMemberDto createTeamMemberDto){
-        Project project = projectService.getProject(createTeamMemberDto.getProjectId());
-        Member member = memberService.getMember(createTeamMemberDto.getMemberId());
-        teamMemberService.createTeamMember(project, member, createTeamMemberDto.getParts());
+        teamMemberFacadeService.createTeamMember(createTeamMemberDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -56,7 +49,7 @@ public class TeamMemberController {
             @AuthenticationPrincipal Member member,
             @Schema(description = "Path Variable. 삭제할 팀멤버 id", example = "2")
             @PathVariable("team-id") Long teamId){
-        teamMemberService.removeTeamMember(member, teamId);
+        teamMemberFacadeService.deleteTeamMember(member, teamId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
