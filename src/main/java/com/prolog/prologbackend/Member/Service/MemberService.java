@@ -20,10 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +41,7 @@ public class MemberService {
      * 회원 정보 수정
      * : 이메일, 비밀번호, 사용자명을 받아 현재 값과 비교하고 수정
      *
-     * @param email : 요청 보낸 사용자의 이메일
+     * @param  : 요청 보낸 사용자의 이메일
      * @param dto : 요청 시 받은 변경을 원하는 사용자의 정보
      * @throws : 변경을 원하는 이메일이 이미 사용중인 경우 에러 발생 (409)
      */
@@ -52,17 +49,16 @@ public class MemberService {
     public void updateMember(String email, MemberUpdateDto dto){
         Member member = memberRepository.findByEmail(email).get();
 
-        if(!member.getEmail().equals(dto.getEmail()))
-            memberRepository.findByEmail(dto.getEmail()).ifPresent(
-                    t -> { throw new BusinessLogicException(MemberExceptionType.CONFLICT); }
-            );
-
-        member.updateEmail(dto.getEmail());
         member.updateNickname(dto.getNickname());
+        member.updatePhoneNumber(dto.getPhone());
         if(!passwordEncoder.matches(dto.getPassword(),member.getPassword())) {
             String encodePassword = passwordEncoder.encode(dto.getPassword());
             member.updatePassword(encodePassword);
         }
+    }
+
+    public Member getMemberById(Long id){
+        return memberRepository.findById(id).get();
     }
 
     /**
@@ -84,7 +80,7 @@ public class MemberService {
 
         List<Long> teamMembersIds = teamMembers.stream().map(t -> t.getId()).toList();
         notesService.deleteImageAndNotes(teamMembersIds);
-        teamMemberService.removeTeamMember(teamMembersIds);
+        teamMemberService.deleteTeamMemberByIds(teamMembersIds);
 
         LocalDateTime updateDate = LocalDateTime.now();
         memberRepository.updateMemberStatus(updateDate, member.getId());
@@ -140,6 +136,13 @@ public class MemberService {
                 .orElseThrow( () -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
     }
 
+    public List<Member> findDeletedMemberByModifiedDate(LocalDateTime dateTime){
+        return memberRepository.findAllByIsDeletedTrueAndModifiedDateBefore(dateTime);
+    }
+
+    public void deleteMemberByIds(List<Long> deletedMembers){
+        memberRepository.deleteAllByIdInBatch(deletedMembers);
+    }
 
     private void deleteProfileImage(String fileName){
         amazonS3Client.deleteObject(BUCKET,fileName);

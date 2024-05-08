@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member,Long> {
     Optional<Member> findByEmail(String email);
     Optional<Member> findByNickname(String nickname);
+    Optional<Member> findByNicknameAndIsDeletedFalse(String nickname);
+    List<Member> findAllByIsDeletedTrueAndModifiedDateBefore(LocalDateTime date);
     @Modifying
     @Query("update member m set m.isDeleted = true, m.modifiedDate = ?1 where m.id = ?2")
     void updateMemberStatus(LocalDateTime updateDate, Long memberId);

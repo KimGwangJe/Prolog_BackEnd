@@ -2,11 +2,13 @@ package com.prolog.prologbackend.Config;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.prolog.prologbackend.Member.Domain.Member;
+import com.prolog.prologbackend.Member.Service.MemberService;
 import com.prolog.prologbackend.Notes.Domain.Image;
 import com.prolog.prologbackend.Notes.Repository.ImageRepository;
+import com.prolog.prologbackend.Notes.Service.NotesService;
 import com.prolog.prologbackend.Project.Domain.Project;
 import com.prolog.prologbackend.Project.Repository.ProjectRepository;
-import com.prolog.prologbackend.Project.Repository.ProjectStepRepository;
 import com.prolog.prologbackend.Project.Service.ProjectService;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +38,10 @@ public class ScheduledConfig {
     private final TeamMemberService teamMemberService;
 
     private final ProjectService projectService;
+
+    private final NotesService notesService;
+
+    private final MemberService memberService;
 
     @Value("${S3Bucket}")
     private String bucket;
@@ -79,8 +86,23 @@ public class ScheduledConfig {
                 .map(Project::getProjectId)
                 .collect(Collectors.toList());
 
-        teamMemberService.removeTeamMember(teamMemberIds);
+        notesService.deleteImageAndNotes(teamMemberIds);
+        teamMemberService.deleteTeamMemberByIds(teamMemberIds);
         projectService.deleteProjectAndProjectStep(projectIds);
+    }
+
+    //회원 탈퇴 후 일주일이 경과된 회원 정보를 DB에서 삭제
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void deleteMember(){
+        LocalDateTime dateTime = LocalDateTime.now().minusWeeks(1);
+
+        List<Member> members = memberService.findDeletedMemberByModifiedDate(dateTime);
+
+        if(members != null){
+            List<Long> deletedMembers = members.stream().map(t -> t.getId()).toList();
+            memberService.deleteMemberByIds(deletedMembers);
+        }
     }
 }
 

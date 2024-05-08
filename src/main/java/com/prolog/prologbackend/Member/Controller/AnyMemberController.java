@@ -28,6 +28,19 @@ import org.springframework.web.bind.annotation.*;
 public class AnyMemberController {
     private final AnyMemberService anyMemberService;
 
+    @Operation(summary = "팀원 조회", description = "초대를 원하는 팀원의 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok : 팀원 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "Not Found : 존재하지 않는 멤버",
+                    content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
+    })
+    @GetMapping("/email")
+    ResponseEntity findMemberByEmail(
+            @Parameter(description = "초대하려는 팀원의 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
+            @RequestParam @Email String email){
+        return ResponseEntity.status(HttpStatus.OK).body(anyMemberService.getMemberByEmail(email));
+    }
+
     @Operation(summary = "일반 회원 가입 메서드", description = "일반 회원 가입을 통해 회원을 등록합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created : 일반 회원가입 성공"),
@@ -41,9 +54,7 @@ public class AnyMemberController {
     }
 
     @Operation(summary = "카카오 소셜 회원가입 및 로그인", description = "카카오 소셜 로그인을 통해 회원 등록 및 로그인 합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created : 소셜 로그인 성공")
-    })
+    @ApiResponse(responseCode = "201", description = "Created : 소셜 로그인 성공")
     @PostMapping("/login/oauth/kakao")
     ResponseEntity<Void> socialLoginMember(
             @Parameter(description = "카카오 서버 인증에 필요한 코드", example = "kakaoCodeKakaoCode", required = true)
@@ -60,7 +71,7 @@ public class AnyMemberController {
             @ApiResponse(responseCode = "409", description = "Conflict : 이미 사용중인 이메일",
                     content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
     })
-    @GetMapping("/email")
+    @GetMapping("/validation/email")
     ResponseEntity<Void> validateEmail(
             @Parameter(description = "사용중인지 확인하고 싶은 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
             @RequestParam @Email String email){
@@ -76,7 +87,7 @@ public class AnyMemberController {
             @ApiResponse(responseCode = "409", description = "Conflict : 이미 사용중인 닉네임",
                     content = @Content(schema = @Schema(implementation=ErrorResponse.class)))
     })
-    @GetMapping("/nickname")
+    @GetMapping("/validation/nickname")
     ResponseEntity<Void> validateNickname(
             @Parameter(description = "사용중인지 확인하고 싶은 닉네임", example = "kimLeeChoi21", required = true)
             @RequestParam @NotBlank @Size(max=20, message="닉네임은 20자 미만으로 작성해야 합니다.") String nickname) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.DTO.Request.KaKaoInfoDto;
 import com.prolog.prologbackend.Member.DTO.Request.MemberJoinDto;
+import com.prolog.prologbackend.Member.DTO.Response.SimpleMemberDto;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Domain.MemberStatus;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
@@ -197,6 +198,18 @@ public class AnyMemberService {
         member.setVerified();
     }
 
+    /**
+     * 초대할 팀원의 정보 조회
+     * : 토큰을 확인하여 회원의 이메일 인증을 진행
+     *
+     * @param email : 조회할 팀원의 email
+     * @throws : 이미 인증한 경우 에러 발생 (409)
+     */
+    public SimpleMemberDto getMemberByEmail(String email){
+        Member member = memberRepository.findByNicknameAndIsDeletedFalse(email)
+                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
+        return SimpleMemberDto.of(member);
+    }
 
     private String getKakaoToken(String code){
         RestTemplate restTemplate = new RestTemplate();

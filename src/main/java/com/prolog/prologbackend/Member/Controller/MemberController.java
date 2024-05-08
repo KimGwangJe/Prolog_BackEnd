@@ -2,7 +2,7 @@ package com.prolog.prologbackend.Member.Controller;
 
 import com.prolog.prologbackend.Exception.ErrorResponse;
 import com.prolog.prologbackend.Member.DTO.Request.MemberUpdateDto;
-import com.prolog.prologbackend.Member.DTO.Response.SimpleMemberDto;
+import com.prolog.prologbackend.Member.DTO.Response.BasicMemberDto;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,21 +29,15 @@ public class MemberController {
     private final MemberService memberService;
 
     @Operation(summary = "사용자 정보 조회 메서드", description = "로그인한 사용자의 정보를 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok : 사용자 정보 조회 성공",
-                    content = @Content(schema = @Schema(implementation=SimpleMemberDto.class)))
-    })
+    @ApiResponse(responseCode = "200", description = "Ok : 사용자 정보 조회 성공",
+            content = @Content(schema = @Schema(implementation=BasicMemberDto.class)))
     @GetMapping("/information")
     ResponseEntity getMember(@AuthenticationPrincipal Member member){
-        return ResponseEntity.status(HttpStatus.OK).body(SimpleMemberDto.of(member));
+        return ResponseEntity.status(HttpStatus.OK).body(BasicMemberDto.of(member));
     }
 
     @Operation(summary = "회원 정보 수정 메서드", description = "사용자는 자신의 정보 중 일부 또는 전부를 수정합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok : 정보 수정 성공"),
-            @ApiResponse(responseCode = "409", description = "Conflict : 변경하려는 이메일이 이미 사용중임",
-                    content = @Content(schema = @Schema(implementation= ErrorResponse.class)))
-    })
+    @ApiResponse(responseCode = "200", description = "Ok : 정보 수정 성공")
     @PatchMapping("/information")
     ResponseEntity<Void> updateMember(@AuthenticationPrincipal Member member,
                                 @RequestBody @Valid MemberUpdateDto dto){
@@ -52,9 +46,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 탈퇴 메서드", description = "서비스 이용 중지를 위한 회원 탈퇴를 진행합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok : 회원 탈퇴 성공")
-    })
+    @ApiResponse(responseCode = "200", description = "Ok : 회원 탈퇴 성공")
     @DeleteMapping
     ResponseEntity<Void> withdrawMember(@AuthenticationPrincipal Member member){
         memberService.deleteMember(member);
