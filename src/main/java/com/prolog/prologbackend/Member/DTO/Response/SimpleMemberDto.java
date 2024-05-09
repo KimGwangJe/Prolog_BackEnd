@@ -19,7 +19,7 @@ public class SimpleMemberDto {
     public static SimpleMemberDto of(Member member){
         SimpleMemberDto memberDto = new SimpleMemberDto();
 
-        memberDto.id = memberDto.getId();
+        memberDto.id = member.getId();
         memberDto.nickName = member.getNickname();
         memberDto.profileImage = member.getProfileImage();
         memberDto.email = member.getEmail();

@@ -7,7 +7,6 @@ import com.prolog.prologbackend.TeamMember.Domain.Part;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
 import com.prolog.prologbackend.TeamMember.Exception.TeamMemberExceptionType;
 import com.prolog.prologbackend.TeamMember.Repository.TeamMemberRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
+
 
     //팀멤버 생성
     public void createTeamMember(TeamMember teamMember) {

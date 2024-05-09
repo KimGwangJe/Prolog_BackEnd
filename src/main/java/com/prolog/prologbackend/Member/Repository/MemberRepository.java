@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member,Long> {
     Optional<Member> findByEmail(String email);
     Optional<Member> findByNickname(String nickname);
+    Optional<Member> findByEmailAndIsDeletedFalse(String email);
     Optional<Member> findByNicknameAndIsDeletedFalse(String nickname);
     List<Member> findAllByIsDeletedTrueAndModifiedDateBefore(LocalDateTime date);
     @Modifying

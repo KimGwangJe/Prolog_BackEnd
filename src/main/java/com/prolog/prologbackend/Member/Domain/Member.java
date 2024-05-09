@@ -73,11 +73,12 @@ public class Member extends BaseTimeEntity{
     }
 
     public void updateNickname(String nickname){
-        if(!this.nickname.equals(nickname)) this.nickname = nickname;
+        this.nickname = nickname;
     }
 
     public void updatePhoneNumber(String phone){
-        if(!this.phone.equals(phone)) this.phone = phone;
+        if(!this.phone.equals(phone))
+            this.phone = phone;
     }
 
     public void setVerified(){

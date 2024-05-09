@@ -1,33 +1,29 @@
-package com.prolog.prologbackend.Member.Service;
+package com.prolog.prologbackend.Member.Service.Facade;
 
 import com.prolog.prologbackend.Exception.BusinessLogicException;
 import com.prolog.prologbackend.Member.DTO.Request.PasswordUpdateDto;
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.ExceptionType.MemberExceptionType;
-import com.prolog.prologbackend.Member.Repository.MemberRepository;
 import com.prolog.prologbackend.Member.Repository.SearchRedisRepository;
+import com.prolog.prologbackend.Member.Service.MemberService;
+import com.prolog.prologbackend.Member.Service.Other.MailService;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class SearchMemberService {
-    private final MemberRepository memberRepository;
+public class SearchMemberFacadeService {
+    private final MemberService memberService;
+    private final MailService mailService;
     private final SearchRedisRepository searchRedisRepository;
-    private final JavaMailSender javaMailSender;
-    private final SpringTemplateEngine templateEngine;
     private final PasswordEncoder passwordEncoder;
+
 
     /**
      * 이메일 찾기
@@ -39,8 +35,7 @@ public class SearchMemberService {
      * @throws : 일치하는 회원이 없는 경우 에러 발생 (404)
      */
     public Map<String, String> findEmail(String nickname, String phone){
-        Member member = memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
+        Member member = memberService.getNotDeletedMemberByNickname(nickname);
         if(!member.getPhone().equals(phone))
             throw new BusinessLogicException(MemberExceptionType.NOT_FOUND);
         Map<String, String> email = new HashMap<>();
@@ -55,26 +50,15 @@ public class SearchMemberService {
      * @param email : 회원의 이메일
      */
     public void issueCertificationNumber(String email){
-        Member member = findMemberByEmail(email);
+        Member member = memberService.getNotDeletedMemberByEmail(email);
         if(!member.getStatus().isBasicMember())
             throw new BusinessLogicException(MemberExceptionType.NOT_FOUND);
 
         int num = (int) (Math.random() * 9000) + 1000;
         String code = String.valueOf(num);
 
-        Context context = new Context();
-        context.setVariable("code",code);
-
         try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setFrom("mailaddress@gmail.com");
-            mimeMessageHelper.setTo(member.getEmail());
-            mimeMessageHelper.setSubject("[prolog] 인증번호 발급");
-            mimeMessageHelper.setText(templateEngine.process("issueCertificationNumber", context), true);
-
-            javaMailSender.send(mimeMessage);
+            mailService.sendIssueCertificationNumber(member.getEmail(), code);
         } catch (MessagingException e){
             throw new BusinessLogicException(MemberExceptionType.INTERNAL_SERVER_ERROR);
         }
@@ -90,7 +74,7 @@ public class SearchMemberService {
      * @param code : 입력한 인증번호
      */
     public void checkCertificationNumber(String email, int code){
-        Member member = findMemberByEmail(email);
+        Member member = memberService.getNotDeletedMemberByEmail(email);
         searchRedisRepository.validateCertificationNumberByEmail(member.getEmail(), String.valueOf(code));
         searchRedisRepository.savePasswordCertification(member.getEmail());
     }
@@ -103,10 +87,10 @@ public class SearchMemberService {
      * @param email : 회원의 이메일
      */
     public void checkCertificationStatus(String nickname, String email){
-        Member member = findMemberByEmail(email);
+        Member member = memberService.getNotDeletedMemberByEmail(email);
         if(!member.getNickname().equals(nickname))
             throw new BusinessLogicException(MemberExceptionType.BAD_REQUEST);
-        findCertificationStatusInRedis(member.getEmail());
+        searchRedisRepository.checkCertificationStatus(member.getEmail());
     }
 
     /**
@@ -116,21 +100,9 @@ public class SearchMemberService {
      */
     @Transactional
     public void updatePassword(PasswordUpdateDto passwordUpdateDto){
-        Member member = findMemberByEmail(passwordUpdateDto.getEmail());
-        findCertificationStatusInRedis(member.getEmail());
+        Member member = memberService.getNotDeletedMemberByEmail(passwordUpdateDto.getEmail());
+        searchRedisRepository.checkCertificationStatus(member.getEmail());
         String encodePassword = passwordEncoder.encode(passwordUpdateDto.getPassword());
         member.updatePassword(encodePassword);
-    }
-
-
-    private Member findMemberByEmail(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessLogicException(MemberExceptionType.NOT_FOUND));
-        return member;
-    }
-
-    private void findCertificationStatusInRedis(String email){
-        if(!searchRedisRepository.findCertificationStatus(email))
-            throw new BusinessLogicException(MemberExceptionType.CODE_UNAUTHORIZED);
     }
 }

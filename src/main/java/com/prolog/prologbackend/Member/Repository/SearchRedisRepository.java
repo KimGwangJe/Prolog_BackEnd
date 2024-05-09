@@ -24,14 +24,15 @@ public class SearchRedisRepository {
     }
 
     public void validateCertificationNumberByEmail(String user, String code){
-        String codeInRedis = redisTemplate.opsForValue().get("Certification:"+user).toString();
+        Object codeInRedis = redisTemplate.opsForValue().get("Certification:"+user);
         if(Objects.isNull(codeInRedis))
             throw new BusinessLogicException(MemberExceptionType.CODE_NOT_FOUND);
-        if(!code.equals(codeInRedis))
+        if(!code.equals(codeInRedis.toString()))
             throw new BusinessLogicException(MemberExceptionType.CODE_BAD_REQUEST);
     }
 
-    public boolean findCertificationStatus(String user){
-        return redisTemplate.hasKey("Password:"+user).booleanValue();
+    public void checkCertificationStatus(String email){
+        if(!redisTemplate.hasKey("Password:"+email).booleanValue())
+                    throw new BusinessLogicException(MemberExceptionType.CODE_UNAUTHORIZED);
     }
 }

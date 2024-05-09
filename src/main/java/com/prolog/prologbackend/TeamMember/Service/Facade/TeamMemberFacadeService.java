@@ -1,4 +1,4 @@
-package com.prolog.prologbackend.TeamMember.Service;
+package com.prolog.prologbackend.TeamMember.Service.Facade;
 
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.Member.Service.MemberService;
@@ -7,6 +7,7 @@ import com.prolog.prologbackend.Project.Service.ProjectService;
 import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
 import com.prolog.prologbackend.TeamMember.Domain.Part;
 import com.prolog.prologbackend.TeamMember.Domain.TeamMember;
+import com.prolog.prologbackend.TeamMember.Service.TeamMemberService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class TeamMemberFacadeService {
     private final TeamMemberService teamMemberService;
     private final MemberService memberService;
     private final ProjectService projectService;
+
 
     /**
      * 필요한 정보를 받아 새 팀멤버 등록

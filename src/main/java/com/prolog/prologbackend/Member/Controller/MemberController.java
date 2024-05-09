@@ -4,7 +4,7 @@ import com.prolog.prologbackend.Exception.ErrorResponse;
 import com.prolog.prologbackend.Member.DTO.Request.MemberUpdateDto;
 import com.prolog.prologbackend.Member.DTO.Response.BasicMemberDto;
 import com.prolog.prologbackend.Member.Domain.Member;
-import com.prolog.prologbackend.Member.Service.MemberService;
+import com.prolog.prologbackend.Member.Service.Facade.MemberFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
-    private final MemberService memberService;
+    private final MemberFacadeService memberFacadeService;
 
     @Operation(summary = "사용자 정보 조회 메서드", description = "로그인한 사용자의 정보를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "Ok : 사용자 정보 조회 성공",
@@ -41,7 +41,7 @@ public class MemberController {
     @PatchMapping("/information")
     ResponseEntity<Void> updateMember(@AuthenticationPrincipal Member member,
                                 @RequestBody @Valid MemberUpdateDto dto){
-        memberService.updateMember(member.getEmail(), dto);
+        memberFacadeService.updateMember(member.getEmail(), dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -49,7 +49,7 @@ public class MemberController {
     @ApiResponse(responseCode = "200", description = "Ok : 회원 탈퇴 성공")
     @DeleteMapping
     ResponseEntity<Void> withdrawMember(@AuthenticationPrincipal Member member){
-        memberService.deleteMember(member);
+        memberFacadeService.deleteMember(member);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -69,9 +69,9 @@ public class MemberController {
             @Parameter(description = "이미지 수정을 위해 새로 적용할 multipart/form-data 형식의 이미지 파일")
             @RequestPart(value = "image") MultipartFile image){
         if(image.isEmpty())
-            memberService.resetProfileImage(member.getEmail());
+            memberFacadeService.resetProfileImage(member.getEmail());
         else
-            memberService.updateProfileImage(member.getEmail(), image);
+            memberFacadeService.updateProfileImage(member.getEmail(), image);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

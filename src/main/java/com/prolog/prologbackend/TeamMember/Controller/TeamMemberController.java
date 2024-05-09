@@ -2,7 +2,7 @@ package com.prolog.prologbackend.TeamMember.Controller;
 
 import com.prolog.prologbackend.Member.Domain.Member;
 import com.prolog.prologbackend.TeamMember.DTO.Request.CreateTeamMemberDto;
-import com.prolog.prologbackend.TeamMember.Service.TeamMemberFacadeService;
+import com.prolog.prologbackend.TeamMember.Service.Facade.TeamMemberFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
