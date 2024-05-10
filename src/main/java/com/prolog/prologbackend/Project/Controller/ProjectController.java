@@ -71,7 +71,7 @@ public class ProjectController {
 
 
     @Operation(summary = "사용자가 포함된 프로젝트 리스트를 반환합니다.")
-    @GetMapping("/project/list")
+    @GetMapping("/api/project/list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success"),
             @ApiResponse(responseCode = "204", description = "No Content"),

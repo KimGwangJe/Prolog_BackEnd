@@ -7,7 +7,8 @@ public enum NotesExceptionType implements ExceptionType {
     INVALID_INPUT_VALUE(400,"데이터에 null이 포함되어 있습니다."),
     NOTES_DELETE_ERROR(400,"일지 삭제에 실패 하였습니다."),
     NOTES_TYPE_ERROR(400,"일지 타입이 올바르지 않습니다."),
-    NOTES_SAVE_ERROR(400,"일지 저장에 실패 하였습니다.");
+    NOTES_SAVE_ERROR(400,"일지 저장에 실패 하였습니다."),
+    IMAGE_SAVE_ERROR(400,"이미지 저장에 실패 하였습니다.");
 
 
     private int errorCode;

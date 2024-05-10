@@ -155,7 +155,7 @@ public class NotesService {
                     .build());
             return url;
         } catch (IOException e) {
-            throw new BusinessLogicException(NotesExceptionType.NOTES_SAVE_ERROR);
+            throw new BusinessLogicException(NotesExceptionType.IMAGE_SAVE_ERROR);
         }
     }
 
