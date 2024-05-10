@@ -43,7 +43,13 @@ public class CustomLogoutFilter extends LogoutFilter {
 
         if(requiresLogout(httpServletRequest, httpServletResponse)) {
             try {
+                if(!httpServletRequest.getMethod().equals("POST"))
+                    throw new BusinessLogicException(SecurityExceptionType.METHOD_NOT_ALLOWED);
+
                 String accessToken = httpServletRequest.getHeader("Token");
+                if(accessToken == null)
+                    throw new BusinessLogicException(SecurityExceptionType.BAD_REQUEST);
+
                 String subToken = jwtProvider.substringToken(accessToken);
                 Claims claims = jwtProvider.parseToken(subToken);
                 jwtProvider.verifyType(JwtType.ACCESS_TOKEN, claims);

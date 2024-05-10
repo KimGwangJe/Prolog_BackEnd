@@ -6,7 +6,9 @@ import lombok.Getter;
 @Getter
 public enum SecurityExceptionType implements ExceptionType {
     //인증 예외
+    BAD_REQUEST(400,"잘못된 요청입니다. 확인해주세요."),
     BAD_CREDENTIALS(401, "비밀번호가 일치하지 않습니다."),
+    METHOD_NOT_ALLOWED(405, "지원하지 않는 메서드 입니다."),
     NOT_FOUND(404,"일치하는 회원이 없습니다."),
     DISABLED(422,"이메일을 인증해주세요."),
     LOCKED(423,"탈퇴한 회원입니다."),

@@ -20,6 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -36,6 +40,7 @@ public class SpringSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.formLogin(AbstractHttpConfigurer::disable)
+                .cors(corsConfig -> corsConfig.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement ->
@@ -52,12 +57,22 @@ public class SpringSecurityConfig {
         return http.build();
     }
 
+    CorsConfigurationSource corsConfigurationSource() {
+        return request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedHeaders(Collections.singletonList("*"));
+            config.setAllowedMethods(Collections.singletonList("*"));
+            config.setAllowedOriginPatterns(Collections.singletonList("*"));
+            config.setAllowCredentials(true);
+            return config;
+        };
+    }
+
     @Bean
     PasswordEncoder setPasswordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
     public CustomAuthenticationFilter customAuthenticationFilter() throws Exception {
         CustomAuthenticationFilter customAuthenticationFilter =
                 new CustomAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(),jwtProvider);
@@ -65,14 +80,12 @@ public class SpringSecurityConfig {
         return customAuthenticationFilter;
     }
 
-    @Bean
     public CustomAuthorizationFilter customAuthorizationFilter() {
         CustomAuthorizationFilter customAuthorizationFilter =
                 new CustomAuthorizationFilter(jwtProvider,customUserDetailsService);
         return customAuthorizationFilter;
     }
 
-    @Bean
     public CustomLogoutFilter customLogoutFilter() {
         CustomLogoutFilter customLogoutFilter =
                 new CustomLogoutFilter(customLogoutSuccessHandler, customLogoutHandler, jwtProvider);

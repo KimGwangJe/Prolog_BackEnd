@@ -2,7 +2,7 @@ package com.prolog.prologbackend.Member.Controller;
 
 import com.prolog.prologbackend.Exception.ErrorResponse;
 import com.prolog.prologbackend.Member.DTO.Request.PasswordUpdateDto;
-import com.prolog.prologbackend.Member.Service.SearchMemberService;
+import com.prolog.prologbackend.Member.Service.Facade.SearchMemberFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/search")
 @RequiredArgsConstructor
 public class SearchMemberController {
-    private final SearchMemberService searchMemberService;
+    private final SearchMemberFacadeService searchMemberFacadeService;
 
     @Operation(summary = "이메일 찾기 메서드", description = "사용자 정보를 이용하여 올바른 사용자에 한해 이메일을 조회합니다.")
     @ApiResponses(value = {
@@ -36,7 +36,7 @@ public class SearchMemberController {
             @RequestParam @NotBlank String nickname,
             @Parameter(description = "회원 정보 확인을 위한 핸드폰 번호", example = "010-1234-5678", required = true)
             @RequestParam @NotBlank String phone){
-        return ResponseEntity.status(HttpStatus.OK).body(searchMemberService.findEmail(nickname, phone));
+        return ResponseEntity.status(HttpStatus.OK).body(searchMemberFacadeService.findEmail(nickname, phone));
     }
 
     @Operation(summary = "인증 번호 발급 메서드", description = "비밀 번호 재설정을 위한 본인 인증 번호를 이메일로 발급합니다.")
@@ -49,7 +49,7 @@ public class SearchMemberController {
     ResponseEntity<Void> issueCertificationNumber(
             @Parameter(description = "인증 번호를 발급할 이메일 주소", example = "kimLeeChoi@mail.com", required = true)
             @RequestParam @Email String email){
-        searchMemberService.issueCertificationNumber(email);
+        searchMemberFacadeService.issueCertificationNumber(email);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -65,7 +65,7 @@ public class SearchMemberController {
             @RequestParam @Email String email,
             @Parameter(description = "발급받은 인증 번호", example = "4865", required = true)
             @RequestParam int code){
-        searchMemberService.checkCertificationNumber(email, code);
+        searchMemberFacadeService.checkCertificationNumber(email, code);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -83,7 +83,7 @@ public class SearchMemberController {
             @RequestParam @Email String email,
             @Parameter(description = "회원 정보 확인을 위한 닉네임", example = "kimLeeChoi21", required = true)
             @RequestParam String nickname){
-        searchMemberService.checkCertificationStatus(nickname, email);
+        searchMemberFacadeService.checkCertificationStatus(nickname, email);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -97,7 +97,7 @@ public class SearchMemberController {
     })
     @PatchMapping("/password")
     ResponseEntity<Void> updatePassword(@RequestBody PasswordUpdateDto passwordUpdateDto){
-        searchMemberService.updatePassword(passwordUpdateDto);
+        searchMemberFacadeService.updatePassword(passwordUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
