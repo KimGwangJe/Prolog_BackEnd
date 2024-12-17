@@ -5,6 +5,7 @@
 3명 (프론트 1명, 백엔드 2명)
 
 **🛠️ 개발 스택**
+
 Java, SpringBoot 3.x.x, Spring Data JPA, MySQL, Swagger, Thymleaf
 
 ### 📖 내용
